@@ -24,6 +24,15 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    // TypeScript features
+    "jsxImportSource": "hono/jsx",
+    "baseUrl": ".",
+    "paths": {
+      "$core/*": ["./src/core/*"],
+      "$infrastructure/*": ["./src/infrastructure/*"],
+      "$shared/*": ["./src/shared/*"]
+    }
   }
 }
