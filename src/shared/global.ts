@@ -1,16 +1,15 @@
-import type Result from "./Result";
+import ResultType, {
+  type SyncResult as SyncResultType,
+  type AsyncResult as AsyncResultType,
+  type ErrorResult as ErrorResultType
+} from "./Result";
 
 declare global {
   // eslint-disable-next-line no-var
-  var ResultType: {
-    SuccessResponse: <T = unknown>(data: T) => GC.SuccessResponse<T>;
-    ErrorResponse: (error: ErrorResult["error"]) => GC.ErrorResponse;
-    Response: <T = unknown>(data: T) => GC.Response<T>;
-  };
   var Result: typeof ResultType;
-  type SyncResult<T = unknown> = Result<T> | ErrorResult;
-  type AsyncResult<T = unknown> = Promise<Result<T> | ErrorResult>;
-  type ErrorResult = Result<null>;
+  type SyncResult<T> = SyncResultType<T>;
+  type AsyncResult<T> = AsyncResultType<T>;
+  type ErrorResult = ErrorResultType;
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace GC {
@@ -20,10 +19,11 @@ declare global {
     }
     interface ErrorResponse {
       success: false;
-      error: ErrorResult["error"];
+      error: ErrorResult["Error"];
     }
     type Response<T> = SuccessResponse<T> | ErrorResponse;
-  }
+    }
 }
 
 globalThis.Result = ResultType;
+
