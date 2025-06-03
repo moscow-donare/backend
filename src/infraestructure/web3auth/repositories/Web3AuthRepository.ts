@@ -1,27 +1,45 @@
+import { jwtVerify, createRemoteJWKSet } from "jose";
 type VerifierIssuerMap = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 const issuerMap: VerifierIssuerMap = {
-  google: 'https://accounts.google.com',
-  github: 'https://github.com/login/oauth',
-  discord: 'https://discord.com',
-}
+  google: "https://accounts.google.com",
+  github: "https://github.com/login/oauth",
+  discord: "https://discord.com",
+};
+const expectedAudience = process.env.WEB3AUTH_CLIENT_ID; // Replace with your actual client ID
 export class Web3AuthRepository {
-
   private static instance: Web3AuthRepository;
 
   private constructor() {
     // Private constructor to prevent instantiation
   }
 
-  public async verifyToken(token: string, verifier: string): AsyncResult<boolean> {
+  public async verifyToken(
+    token: string,
+    verifier: string
+  ): AsyncResult<boolean> {
     let issuer = issuerMap[verifier];
     if (!issuer) {
-        return Result.Err({
-            code: 'InvalidVerifier',
-            message: `The verifier ${verifier} is not supported.`,
-        })
+      return Result.Err({
+        code: "InvalidVerifier",
+        message: `The verifier ${verifier} is not supported.`,
+      });
     }
+
+    const jwksUri = `${issuer}/.well-known/openid-configuration`;
+    const openidConfig: {
+      jwks_uri: string;
+    } = (await fetch(jwksUri).then((res) => res.json())) as any;
+    const jwksUrl = openidConfig.jwks_uri;
+    const JWKS = createRemoteJWKSet(new URL(jwksUrl));
+
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer,
+      audience: expectedAudience,
+    });
+
+    console.log("Token verified successfully:", payload);
     return Result.Ok(true);
   }
 
