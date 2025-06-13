@@ -1,5 +1,6 @@
 import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
 import type { IAuthRepository } from "../ports/IAuthRepository";
+import { email } from "zod/v4";
 
 const JWKS_URL = "https://api-auth.web3auth.io/.well-known/jwks.json";
 const CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID ?? ''; // el de tu proyecto
@@ -39,9 +40,32 @@ export class Web3AuthRepository implements IAuthRepository {
     return Web3AuthRepository.instance;
   }
 
-  public async getUserInfo(): Promise<any> {
-    // Implement the logic to get user info
-    return {};
+  public async getUserInfo(token: string): AsyncResult<unknown> {
+    try {
+      const { payload } = await jwtVerify(token, JWKS, {
+        issuer: "https://api-auth.web3auth.io",
+        audience: CLIENT_ID,
+      });
+
+      console.log(payload);
+      return Result.Ok(this.mapUserInfo(payload));
+    } catch (error) {
+      console.error(error);
+      return Result.Err({
+        code: "InvalidToken",
+        message: "The provided token is invalid.",
+      });
+    }
+  }
+
+
+  private mapUserInfo(payload: any): unknown {
+    return {
+      userId: payload.userId,
+      email: payload.email,
+      name: payload.name,
+      address: payload.wallet.find((wallet: any) => wallet.type === "web3auth_threshold_key")?.public_key || null,
+    }
   }
 
   public async login(): Promise<void> {

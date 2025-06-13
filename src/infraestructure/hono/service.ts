@@ -26,26 +26,27 @@ class HonoService {
       cors(
         Bun.env.NODE_ENV === "production"
           ? {
-              origin: [
-                // == Stable
-                "http://localhost:3000",
-              ],
-              allowHeaders: [
-                "Upgrade-Insecure-Requests",
-                "Authorization",
-                "Content-Type",
-              ],
-              allowMethods: ["POST", "GET", "OPTIONS", "PATCH", "PUT"],
-              exposeHeaders: ["Content-Length"],
-              maxAge: 600,
-              credentials: true,
-            }
+            origin: [
+              // == Stable
+              "http://localhost:3000",
+            ],
+            allowHeaders: [
+              "Upgrade-Insecure-Requests",
+              "Authorization",
+              "Content-Type",
+            ],
+            allowMethods: ["POST", "GET", "OPTIONS", "PATCH", "PUT"],
+            exposeHeaders: ["Content-Length"],
+            maxAge: 600,
+            credentials: true,
+          }
           : undefined
       )
     );
 
     // Dependency Injection
     this.app.use((c, next) => {
+      c.set("repositories:web3auth", deps.repositories.web3auth);
       return next();
     });
 

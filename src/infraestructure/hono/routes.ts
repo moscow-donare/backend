@@ -1,5 +1,5 @@
 import getHelloWorldHandler from "./handlers/getHelloWorld";
-import loginWeb3AuthHandler from "./handlers/loginWeb3Auth"
+import loginWeb3AuthHandler from "./handlers/auth/loginWeb3Auth"
 import type { Route } from "./types";
 
 const routes: Route[] = [
