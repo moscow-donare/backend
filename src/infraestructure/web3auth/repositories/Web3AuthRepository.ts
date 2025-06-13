@@ -1,9 +1,10 @@
 import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
+import type { IAuthRepository } from "../ports/IAuthRepository";
 
 const JWKS_URL = "https://api-auth.web3auth.io/.well-known/jwks.json";
 const CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID ?? ''; // el de tu proyecto
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
-export class Web3AuthRepository {
+export class Web3AuthRepository implements IAuthRepository {
   private static instance: Web3AuthRepository;
 
   private constructor() {
