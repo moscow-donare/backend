@@ -1,32 +1,29 @@
 FROM oven/bun:debian
 
-EXPOSE $PORT
+# Exponer puerto por si lo necesitás (aunque no es obligatorio)
+EXPOSE 3000
 
-WORKDIR /app
-
-# https://stackoverflow.com/a/57546198
-# Install node.js
-RUN apt update && \
-	apt install -y curl && \
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-
+# Seteás variables necesarias
+ENV NODE_ENV="local"
 ENV NVM_DIR=/root/.nvm
 ENV NODE_VERSION=20.18.0
-RUN . "$NVM_DIR/nvm.sh" && \
-	nvm install ${NODE_VERSION} && \
-	nvm use v${NODE_VERSION} && \
-	nvm alias default v${NODE_VERSION}
-
 ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
-ENV NODE_ENV="local"
+# Instalás Node con NVM (aunque ya tenés Bun, ¿seguro necesitás Node 20? Solo hacelo si hay algún paquete que lo requiera)
+RUN apt update && \
+    apt install -y curl git && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
+    . "$NVM_DIR/nvm.sh" && \
+    nvm install ${NODE_VERSION} && \
+    nvm use v${NODE_VERSION} && \
+    nvm alias default v${NODE_VERSION}
 
-# Setup OS and system dependencies
-RUN apt update -y && \
-	apt install git -y
-
-# Setup app
+# Definís el working directory
 WORKDIR /app
-COPY . .
-COPY .env.dev .env
+
+# Instalás dependencias antes de montar código (mejor cache)
+COPY package.json bun.lock ./
 RUN bun install
+
+# El resto del código será montado por volumen, así no necesitás rebuild
+CMD ["bun", "run", "dev"]
