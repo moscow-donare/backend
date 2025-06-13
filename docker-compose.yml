@@ -7,27 +7,14 @@ services:
     volumes:
       - ./src:/app/src
       - ./package.json:/app/package.json
+      - ./bun.lock:/app/bun.lock
+      - ./tsconfig.json:/app/tsconfig.json  # si usás TypeScript
     ports:
       - "3000:3000"
     environment:
       - PORT=3000
     env_file:
       - .env.dev
-    command: bash -c "bun run dev"
+    command: bun run dev
     restart: always
-  donare-postgres:
-    container_name: Donare.Postgres
-    image: postgres:16-alpine
-    restart: always
-    shm_size: 128mb
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: donare
-      POSTGRES_PASSWORD: donare
-      POSTGRES_DB: donare
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U donare -d donare"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+
