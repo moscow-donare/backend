@@ -1,6 +1,7 @@
 import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
-import type { IAuthRepository } from "../ports/IAuthRepository";
+import type { IAuthRepository } from "./ports/IAuthRepository";
 import { email } from "zod/v4";
+import type { UserInputFromWeb3Auth } from "$core/users/domain/types";
 
 const JWKS_URL = "https://api-auth.web3auth.io/.well-known/jwks.json";
 const CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID ?? ''; // el de tu proyecto
@@ -40,12 +41,19 @@ export class Web3AuthRepository implements IAuthRepository {
     return Web3AuthRepository.instance;
   }
 
-  public async getUserInfo(token: string): AsyncResult<unknown> {
+  public async getUserInfo(token: string): AsyncResult<UserInputFromWeb3Auth> {
     try {
       const { payload } = await jwtVerify(token, JWKS, {
         issuer: "https://api-auth.web3auth.io",
         audience: CLIENT_ID,
       });
+
+      if (!this.isValidPayload(payload)) {
+        return Result.Err({
+          code: "InvalidPayload",
+          message: "The token payload is invalid or missing required fields.",
+        });
+      }
 
       console.log(payload);
       return Result.Ok(this.mapUserInfo(payload));
@@ -58,13 +66,24 @@ export class Web3AuthRepository implements IAuthRepository {
     }
   }
 
+  private isValidPayload(payload: any): boolean {
+    return payload &&
+      payload.userId && typeof payload.userId === 'string' &&
+      payload.email && typeof payload.email === 'string' &&
+      payload.name && typeof payload.name === 'string' &&
+      Array.isArray(payload.wallet) &&
+      payload.wallet.some((wallet: any) =>
+        wallet.type === "web3auth_threshold_key" &&
+        typeof wallet.public_key === 'string'
+      );
+  }
 
-  private mapUserInfo(payload: any): unknown {
+  private mapUserInfo(payload: any): UserInputFromWeb3Auth {
     return {
       userId: payload.userId,
       email: payload.email,
       name: payload.name,
-      address: payload.wallet.find((wallet: any) => wallet.type === "web3auth_threshold_key")?.public_key || null,
+      address: payload.wallet.find((wallet: any) => wallet.type === "web3auth_threshold_key").public_key,
     }
   }
 

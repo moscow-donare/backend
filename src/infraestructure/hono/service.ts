@@ -47,6 +47,7 @@ class HonoService {
     // Dependency Injection
     this.app.use((c, next) => {
       c.set("repositories:web3auth", deps.repositories.web3auth);
+      c.set("repositories:user", deps.repositories.user);
       return next();
     });
 

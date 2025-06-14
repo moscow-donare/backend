@@ -1,6 +1,7 @@
 import { type Context as HContext, Hono as HHono } from "hono";
 import type { ResultError } from "../../shared/Result";
-import type { IAuthRepository } from "../web3auth/ports/IAuthRepository";
+import type { IAuthRepository } from "../repositories/web3auth/ports/IAuthRepository";
+import type { IUserRepository } from "$core/users/domain/ports/IUserRepository";
 
 export type Hono = HHono<{
   Variables: ContextVariables;
@@ -12,12 +13,14 @@ export type Context = HContext<{
 export type HonoServiceDependencies = {
   repositories: {
     web3auth: IAuthRepository;
+    user: IUserRepository;
   };
 };
 
 export interface ContextVariables {
   // Repositories
   "repositories:web3auth": HonoServiceDependencies['repositories']["web3auth"];
+  "repositories:user": HonoServiceDependencies['repositories']["user"];
 
   // Entities
   "request:body": unknown;

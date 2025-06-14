@@ -1,47 +1,55 @@
 import { User } from "../domain/user";
-import { db } from "../../../infraestructure/drizzle/db";
-import { users } from "../../../infraestructure/drizzle/schema";
+import type { ContainerUserRepository } from "../domain/ports/IUserRepository";
 
-type CreateUserInput = {
+export type CreateUserInput = {
     fullName: string;
     email: string;
     address: string;
 };
 
-export async function createUser(input: CreateUserInput) {
-    try {
-        const user = User.create(input);
+export async function createUser(input: CreateUserInput, repositories: ContainerUserRepository): AsyncResult<User> {
 
-        const result = await db
-            .insert(users)
-            .values({
-                full_name: user.fullName,
-                email: user.email,
-                address: user.address,
-            })
-            .returning();
+    const user = User.create(input);
 
-        const created = result?.[0];
+    const existingUserResult = await repositories.userRepository.findByEmail(user.email);
 
-        if (!created) {
-            return Result.Err({
-                code: "USER_CREATION_FAILED",
-                message: "No se pudo crear el usuario",
-            });
-        }
-
-        return Result.Ok({
-            id: created.id,
-            fullName: created.full_name,
-            email: created.email,
-            address: created.address,
-            createdAt: created.created_at,
-        });
-    } catch (error) {
+    if (existingUserResult.IsOk && existingUserResult.Unwrap()) {
         return Result.Err({
-            code: "UNEXPECTED_ERROR",
-            message: error instanceof Error ? error.message : "Error inesperado",
-            details: error,
+            code: "USER_ALREADY_EXISTS",
+            message: "El usuario ya existe con ese email",
         });
     }
+
+    if (existingUserResult.IsErr && existingUserResult.Error.code !== "DB_ERROR::USER_NOT_FOUND") {
+        return Result.Err({
+            code: existingUserResult.Error.code,
+            message: existingUserResult.Error.message,
+            details: existingUserResult.Error.details,
+        });
+    }
+
+    const createdResult = await repositories.userRepository.save(user);
+    if (createdResult.IsErr) {
+        return Result.Err({
+            code: createdResult.Error.code,
+            message: createdResult.Error.message,
+            details: createdResult.Error.details,
+        });
+    }
+    const created = createdResult.Unwrap();
+    if (!created) {
+        return Result.Err({
+            code: "USER_CREATION_FAILED",
+            message: "No se pudo crear el usuario",
+        });
+    }
+
+
+    return Result.Ok({
+        id: created.id,
+        fullName: created.fullName,
+        email: created.email,
+        address: created.address,
+        createdAt: created.createdAt,
+    });
 }
