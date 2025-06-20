@@ -12,6 +12,6 @@ const honoService = new HonoService({
 
 Bun.serve({
   fetch: honoService.fetch,
-  port: 3000,
+  port: 3001,
 });
-console.log("servidor corriendo puerto 3000");
+console.log("servidor corriendo puerto 3001");

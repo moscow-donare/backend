@@ -9,6 +9,7 @@ function makeValidationBroker<T extends ZodRawShape>(
 		let reqBody: any = {};
 		try {
 			reqBody = await ctx.req.json();
+			console.log("ValidationBroker::RequestBody", reqBody);
 		} catch (e: any) {
 			console.error("ValidationBroker::MalformedRequestBody", e);
 			return Result.Err({

@@ -4,6 +4,8 @@ import type { RouteHandler } from "../types";
 
 const handler: RouteHandler = (c) => {
   console.log("Hello, world handler called");
+  const userSession = c.get("user:session");
+  console.log("User session:", userSession);
 
   return c.json({
     success: true,

@@ -3,7 +3,6 @@ import HonoRouter from "../../router";
 import type { RouteHandler } from "../../types";
 import { z } from "zod";
 import makeValidationBroker from "../../brokers/validationDTO";
-import verifyToken from "../../brokers/verifyToken";
 import { createUser, type CreateUserInput } from "$core/users/application/createUser";
 
 const inputSchema = z.object({
@@ -16,6 +15,7 @@ const handler: RouteHandler = async (c) => {
     const body = c.get("request:body") as InputType;
     const web3auth = c.get("repositories:web3auth");
     const userRepository = c.get("repositories:user");
+    console.log("Login Web3Auth handler called with body:", body);
 
     const user = await web3auth.getUserInfo(body.idToken)
 
@@ -70,4 +70,4 @@ const handler: RouteHandler = async (c) => {
     });
 }
 
-export default HonoRouter.resolve(handler, [verifyToken, makeValidationBroker(inputSchema)])
+export default HonoRouter.resolve(handler, [makeValidationBroker(inputSchema)])

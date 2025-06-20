@@ -40,6 +40,7 @@ export class UserDrizzleRepository implements IUserRepository {
 
         }
     }
+
     async findByEmail(email: string): AsyncResult<User> {
         try {
             const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
