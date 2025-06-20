@@ -15,7 +15,6 @@ const handler: RouteHandler = async (c) => {
     const body = c.get("request:body") as InputType;
     const web3auth = c.get("repositories:web3auth");
     const userRepository = c.get("repositories:user");
-    console.log("Login Web3Auth handler called with body:", body);
 
     const user = await web3auth.getUserInfo(body.idToken)
 
@@ -37,12 +36,12 @@ const handler: RouteHandler = async (c) => {
         });
     }
     const existingUser = await userRepository.findByEmail(userInfo.email);
-
-    if (existingUser.IsOk && existingUser.Unwrap()) {
-        console.log("User already exists:", existingUser.Unwrap());
+    const existingUserUnwrap = existingUser.Unwrap() ?? null;
+    if (existingUser.IsOk && existingUserUnwrap) {
         return c.json({
             success: true,
-            data: userInfo
+            message: "User already exists",
+            data: existingUserUnwrap
         });
     }
     const createUserInput: CreateUserInput = {
@@ -63,10 +62,8 @@ const handler: RouteHandler = async (c) => {
 
     return c.json({
         success: true,
-        data: {
-            message: "User created successfully",
-            user: createdUser.Unwrap(),
-        },
+        message: "User created successfully",
+        data: createdUser.Unwrap(),
     });
 }
 

@@ -7,3 +7,6 @@ export const users = pgTable("users", {
   address: varchar("address", { length: 255 }).notNull().unique(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+
+
+export const schema = { users };

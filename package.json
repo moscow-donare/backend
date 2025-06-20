@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "migrate-local": "DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit migrate"
   },
   "devDependencies": {
     "@types/bun": "latest",

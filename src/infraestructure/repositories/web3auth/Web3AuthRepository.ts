@@ -1,10 +1,10 @@
 import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
 import type { IAuthRepository } from "./ports/IAuthRepository";
-import { email } from "zod/v4";
 import type { UserInputFromWeb3Auth } from "$core/users/domain/types";
 
-const JWKS_URL = "https://api-auth.web3auth.io/.well-known/jwks.json";
+const JWKS_URL = process.env.JWKS_URL!; // URL del JWKS de Web3Auth
 const CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID ?? ''; // el de tu proyecto
+const ISSUER_WEB3AUTH = "https://api-auth.web3auth.io"; // el issuer de Web3Auth
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 export class Web3AuthRepository implements IAuthRepository {
   private static instance: Web3AuthRepository;
@@ -19,11 +19,10 @@ export class Web3AuthRepository implements IAuthRepository {
   ): AsyncResult<boolean> {
     try {
       const { payload } = await jwtVerify(token, JWKS, {
-        issuer: "https://api-auth.web3auth.io",
+        issuer: ISSUER_WEB3AUTH,
         audience: CLIENT_ID,
       });
 
-      console.log(payload);
       return Result.Ok(true);
     } catch (error) {
       console.error(error);
@@ -44,7 +43,7 @@ export class Web3AuthRepository implements IAuthRepository {
   public async getUserInfo(token: string): AsyncResult<UserInputFromWeb3Auth> {
     try {
       const { payload } = await jwtVerify(token, JWKS, {
-        issuer: "https://api-auth.web3auth.io",
+        issuer: ISSUER_WEB3AUTH,
         audience: CLIENT_ID,
       });
 
@@ -55,7 +54,6 @@ export class Web3AuthRepository implements IAuthRepository {
         });
       }
 
-      console.log(payload);
       return Result.Ok(this.mapUserInfo(payload));
     } catch (error) {
       console.error(error);
@@ -71,8 +69,8 @@ export class Web3AuthRepository implements IAuthRepository {
       payload.userId && typeof payload.userId === 'string' &&
       payload.email && typeof payload.email === 'string' &&
       payload.name && typeof payload.name === 'string' &&
-      Array.isArray(payload.wallet) &&
-      payload.wallet.some((wallet: any) =>
+      Array.isArray(payload.wallets) &&
+      payload.wallets.some((wallet: any) =>
         wallet.type === "web3auth_threshold_key" &&
         typeof wallet.public_key === 'string'
       );
@@ -83,7 +81,7 @@ export class Web3AuthRepository implements IAuthRepository {
       userId: payload.userId,
       email: payload.email,
       name: payload.name,
-      address: payload.wallet.find((wallet: any) => wallet.type === "web3auth_threshold_key").public_key,
+      address: payload.wallets.find((wallet: any) => wallet.type === "web3auth_threshold_key").public_key,
     }
   }
 
