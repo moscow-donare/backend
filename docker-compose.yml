@@ -9,13 +9,15 @@ services:
       - ./package.json:/app/package.json
       - ./bun.lock:/app/bun.lock
       - ./tsconfig.json:/app/tsconfig.json # si usás TypeScript
+      - ./drizzle.config.ts:/app/drizzle.config.ts
+
     ports:
       - "3001:3001"
     environment:
       - PORT=3001
     env_file:
       - .env.dev
-    command: bun run dev
+    command: bash -c "bun run migrate:docker && bun run dev"
     restart: always
   postgres:
     image: postgres:15
