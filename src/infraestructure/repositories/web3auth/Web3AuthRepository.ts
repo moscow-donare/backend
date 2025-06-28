@@ -1,6 +1,8 @@
 import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
 import type { IAuthRepository } from "./ports/IAuthRepository";
 import type { UserInputFromWeb3Auth } from "$core/users/domain/types";
+import { ethers } from "ethers";
+
 
 const JWKS_URL = process.env.JWKS_URL!; // URL del JWKS de Web3Auth
 const CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID ?? ''; // el de tu proyecto
@@ -53,7 +55,8 @@ export class Web3AuthRepository implements IAuthRepository {
           message: "The token payload is invalid or missing required fields.",
         });
       }
-
+      const userInfo = this.mapUserInfo(payload);
+      console.log("addres armada", this.publicKeyToAddress(userInfo.address));
       return Result.Ok(this.mapUserInfo(payload));
     } catch (error) {
       console.error(error);
@@ -63,6 +66,18 @@ export class Web3AuthRepository implements IAuthRepository {
       });
     }
   }
+
+  public publicKeyToAddress(publicKeyHex: string): string {
+    // Asegurar que comience con '0x'
+    if (!publicKeyHex.startsWith("0x")) {
+      publicKeyHex = "0x" + publicKeyHex;
+    }
+
+    // Usamos ethers para convertir public key a dirección
+    const address = ethers.computeAddress(publicKeyHex);
+    return address;
+  }
+
 
   private isValidPayload(payload: any): boolean {
     return payload &&
