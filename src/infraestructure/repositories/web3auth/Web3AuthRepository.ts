@@ -80,6 +80,7 @@ export class Web3AuthRepository implements IAuthRepository {
 
 
   private isValidPayload(payload: any): boolean {
+    console.log("Payload:", payload);
     return payload &&
       payload.userId && typeof payload.userId === 'string' &&
       payload.email && typeof payload.email === 'string' &&
@@ -96,7 +97,7 @@ export class Web3AuthRepository implements IAuthRepository {
       userId: payload.userId,
       email: payload.email,
       name: payload.name,
-      address: payload.wallets.find((wallet: any) => wallet.type === "web3auth_threshold_key").public_key,
+      address: payload.wallets.find((wallet: any) => wallet.type === "web3auth_app_key" && wallet.curve === "secp256k1").public_key,
     }
   }
 
