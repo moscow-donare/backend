@@ -1,11 +1,10 @@
-import HonoService from "./infraestructure/hono/service";
-
-const honoService = new HonoService({
-  repositories: {},
-});
+import "./shared/global.ts";
+import "./infraestructure/drizzle/db.ts";
+import { honoService } from './bootstrap'
 
 Bun.serve({
   fetch: honoService.fetch,
-  port: 3000,
+  port: 3001,
 });
-console.log("servidor corriendo puerto 3000");
+console.log("servidor corriendo puerto 3001");
+

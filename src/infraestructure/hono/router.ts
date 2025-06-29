@@ -39,17 +39,17 @@ class HonoRouter {
 
       for (const b of brokers) {
         const bResult = await b(ctx);
-        if (bResult.isErr) {
+        if (bResult.IsErr) {
           return c.json({
             success: false,
             error: {
-              code: bResult.error.code,
-              message: bResult.error.message,
-              details: bResult.error.details,
+              code: bResult.Error.code,
+              message: bResult.Error.message,
+              details: bResult.Error.details,
             },
           });
         }
-        ctx = bResult.value;
+        ctx = bResult.Unwrap();
       }
 
       return tail(c);
