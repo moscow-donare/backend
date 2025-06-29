@@ -6,13 +6,17 @@
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "migrate:local": "DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit migrate",
-    "migrate:docker": "DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit migrate"
+    "migrate:docker": "DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit migrate",
+    "migrate:docker:test": "DATABASE_URL=postgresql://postgres:postgres@db:5432/donare_test bun drizzle-kit generate && DATABASE_URL=postgresql://postgres:postgres@db:5432/donare_test bun drizzle-kit migrate",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/pg": "^8.15.2",
+    "@types/supertest": "^6.0.3",
     "drizzle-kit": "^0.31.1",
-    "tsx": "^4.19.4"
+    "tsx": "^4.19.4",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "typescript": "^5"

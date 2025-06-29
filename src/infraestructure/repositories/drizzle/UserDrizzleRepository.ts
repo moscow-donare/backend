@@ -1,6 +1,6 @@
-import type { IUserRepository } from "$core/users/domain/ports/IUserRepository";
-import type { UserDB } from "$core/users/domain/types";
-import { User } from "$core/users/domain/user";
+import type { IUserRepository } from "src/core/users/domain/ports/IUserRepository";
+import type { UserDB } from "src/core/users/domain/types";
+import { User } from "src/core/users/domain/user";
 import { db } from "src/infraestructure/drizzle/db";
 import { users } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";

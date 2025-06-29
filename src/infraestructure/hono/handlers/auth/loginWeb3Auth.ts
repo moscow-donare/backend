@@ -3,7 +3,7 @@ import HonoRouter from "../../router";
 import type { RouteHandler } from "../../types";
 import { z } from "zod";
 import makeValidationBroker from "../../brokers/validationDTO";
-import { createUser, type CreateUserInput } from "$core/users/application/createUser";
+import { createUser, type CreateUserInput } from "src/core/users/application/createUser";
 
 const inputSchema = z.object({
     idToken: TokenWeb3Auth
@@ -22,7 +22,7 @@ const handler: RouteHandler = async (c) => {
         return c.json({
             success: false,
             error: user.Error,
-        });
+        }, 400);
     }
 
     const userInfo = user.Unwrap();
@@ -33,7 +33,7 @@ const handler: RouteHandler = async (c) => {
                 code: "USER_NOT_FOUND",
                 message: "User not found in Web3Auth",
             },
-        });
+        }, 404);
     }
     const existingUser = await userRepository.findByEmail(userInfo.email);
     const existingUserUnwrap = existingUser.Unwrap() ?? null;
@@ -57,7 +57,7 @@ const handler: RouteHandler = async (c) => {
         return c.json({
             success: false,
             error: createdUser.Error,
-        });
+        }, 400);
     }
 
     return c.json({

@@ -24,7 +24,7 @@ class HonoService {
     this.app.use(
       "*",
       cors(
-        Bun.env.NODE_ENV === "production"
+        process.env.NODE_ENV === "production"
           ? {
             origin: [
               // == Stable

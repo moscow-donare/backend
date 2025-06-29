@@ -2,6 +2,7 @@ import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
 import type { IAuthRepository } from "./ports/IAuthRepository";
 import type { UserInputFromWeb3Auth } from "$core/users/domain/types";
 import { ethers } from "ethers";
+import { th } from "zod/v4/locales";
 
 
 const JWKS_URL = process.env.JWKS_URL!; // URL del JWKS de Web3Auth
@@ -19,20 +20,7 @@ export class Web3AuthRepository implements IAuthRepository {
     token: string,
     verifier: string
   ): AsyncResult<boolean> {
-    try {
-      const { payload } = await jwtVerify(token, JWKS, {
-        issuer: ISSUER_WEB3AUTH,
-        audience: CLIENT_ID,
-      });
-
-      return Result.Ok(true);
-    } catch (error) {
-      console.error(error);
-      return Result.Err({
-        code: "InvalidToken",
-        message: "The provided token is invalid.",
-      });
-    }
+    throw new Error("Method not implemented.");
   }
 
   public static getInstance(): Web3AuthRepository {
@@ -43,6 +31,7 @@ export class Web3AuthRepository implements IAuthRepository {
   }
 
   public async getUserInfo(token: string): AsyncResult<UserInputFromWeb3Auth> {
+    console.log("getUserInfo token", token);
     try {
       const { payload } = await jwtVerify(token, JWKS, {
         issuer: ISSUER_WEB3AUTH,
