@@ -1,4 +1,4 @@
-import { TokenWeb3Auth } from "src/infraestructure/zod/commond";
+import { TokenWeb3Auth } from "src/infraestructure/zod/common";
 import HonoRouter from "../../router";
 import type { RouteHandler } from "../../types";
 import { z } from "zod";

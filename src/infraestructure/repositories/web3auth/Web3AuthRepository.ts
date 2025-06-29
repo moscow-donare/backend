@@ -2,7 +2,6 @@ import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
 import type { IAuthRepository } from "./ports/IAuthRepository";
 import type { UserInputFromWeb3Auth } from "$core/users/domain/types";
 import { ethers } from "ethers";
-import { th } from "zod/v4/locales";
 
 
 const JWKS_URL = process.env.JWKS_URL!; // URL del JWKS de Web3Auth
@@ -14,13 +13,6 @@ export class Web3AuthRepository implements IAuthRepository {
 
   private constructor() {
     // Private constructor to prevent instantiation
-  }
-
-  public async verifyToken(
-    token: string,
-    verifier: string
-  ): AsyncResult<boolean> {
-    throw new Error("Method not implemented.");
   }
 
   public static getInstance(): Web3AuthRepository {
@@ -77,6 +69,7 @@ export class Web3AuthRepository implements IAuthRepository {
       Array.isArray(payload.wallets) &&
       payload.wallets.some((wallet: any) =>
         wallet.type === "web3auth_threshold_key" &&
+        wallet.curve === "secp256k1" &&
         typeof wallet.public_key === 'string'
       );
   }
@@ -88,13 +81,5 @@ export class Web3AuthRepository implements IAuthRepository {
       name: payload.name,
       address: payload.wallets.find((wallet: any) => wallet.type === "web3auth_threshold_key" && wallet.curve === "secp256k1").public_key,
     }
-  }
-
-  public async login(): Promise<void> {
-    // Implement the logic to log in
-  }
-
-  public async logout(): Promise<void> {
-    // Implement the logic to log out
   }
 }

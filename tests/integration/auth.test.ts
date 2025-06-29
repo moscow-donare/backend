@@ -18,11 +18,6 @@ class MockWeb3AuthRepository implements IAuthRepository {
         console.log("✅ Mock ejecutado con token:", token)
         return Result.Ok(mockUser)
     }
-
-    async verifyToken(token: string, verifier: string) {
-        // Simula la verificación del token
-        return Result.Ok(true)
-    }
 }
 
 let honoService: HonoService
