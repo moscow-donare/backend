@@ -9,7 +9,7 @@ export type CreateCampaignInput = {
     goal: number;
     endDate: Date;
     url: string;
-    photos: string[];
+    photo: string;
     creator: User;
     status?: CampaignStatus;
 };
@@ -19,24 +19,27 @@ export async function createCampaign(
     repositories: ContainerCampaignRepository
 ): AsyncResult<Campaign> {
     const userCampaignsResult = await repositories.campaignRepository.findByUser(input.creator);
-    if (userCampaignsResult.IsOk && userCampaignsResult.Unwrap().length > 0) {
-        for (const userCampaign of userCampaignsResult.Unwrap()) {
-            if (userCampaign.status === CampaignStatus.IN_REVIEW) {
-                return Result.Err({
-                    code: "USER_CAMPAIGN_IN_REVIEW",
-                    message: "El usuario ya tiene una campaña en revisión",
-                });
-            }
-            if (userCampaign.status === CampaignStatus.ACTIVE) {
-                return Result.Err({
-                    code: "USER_ACTIVE_CAMPAIGN_EXISTS",
-                    message: "El usuario ya tiene una campaña activa",
-                });
-            }
+    if (userCampaignsResult.IsOk) {
+        const campaigns = userCampaignsResult.Unwrap();
+        if (campaigns.some(c => c.status === CampaignStatus.IN_REVIEW)) {
+            return Result.Err({
+                code: "USER_CAMPAIGN_IN_REVIEW",
+                message: "El usuario ya tiene una campaña en revisión",
+            });
+        }
+        if (campaigns.some(c => c.status === CampaignStatus.ACTIVE)) {
+            return Result.Err({
+                code: "USER_ACTIVE_CAMPAIGN_EXISTS",
+                message: "El usuario ya tiene una campaña activa",
+            });
         }
     }
 
-    const campaign = Campaign.create(input);
+    const campaign = Campaign.create({ //TODO: Revisar este codigo
+        ...input,
+        status: input.status ?? CampaignStatus.IN_REVIEW,
+        createdAt: null,
+    });
 
     const createdResult = await repositories.campaignRepository.save(campaign);
     if (createdResult.IsErr) {
@@ -62,7 +65,7 @@ export async function createCampaign(
         goal: created.goal,
         endDate: created.endDate,
         url: created.url,
-        photos: created.photos,
+        photo: created.photo,
         creator: created.creator,
         status: created.status,
         createdAt: created.createdAt,

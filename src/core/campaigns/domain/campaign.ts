@@ -9,10 +9,10 @@ export class Campaign {
         public goal: number,
         public endDate: Date,
         public url: string,
-        public photos: string[],
+        public photo: string,
         public creator: User,
         public status: CampaignStatus = CampaignStatus.IN_REVIEW,
-        public readonly createdAt: Date | null
+        public readonly createdAt: Date
     ) { }
 
     static create(props: {
@@ -23,10 +23,10 @@ export class Campaign {
         goal: number;
         endDate: Date;
         url: string;
-        photos: string[];
+        photo: string;
         creator: User;
-        status?: CampaignStatus;
-        createdAt?: Date | null;
+        status: CampaignStatus;
+        createdAt: Date | null;
     }): Campaign {
         return new Campaign(
             props.id ?? null,
@@ -36,10 +36,10 @@ export class Campaign {
             props.goal,
             props.endDate,
             props.url,
-            props.photos,
+            props.photo,
             props.creator,
             props.status ?? CampaignStatus.IN_REVIEW,
-            props.createdAt ?? null
+            props.createdAt ?? new Date()
         );
     }
 
@@ -51,7 +51,7 @@ export class Campaign {
         goal: number;
         endDate: Date;
         url: string;
-        photos: string[];
+        photo: string;
         creator: User;
         status?: CampaignStatus;
         createdAt?: Date | null;
@@ -64,10 +64,10 @@ export class Campaign {
             props.goal,
             props.endDate,
             props.url,
-            props.photos,
+            props.photo,
             props.creator,
             props.status ?? CampaignStatus.IN_REVIEW,
-            props.createdAt ?? null
+            props.createdAt ?? new Date()
         );
     }
 }
