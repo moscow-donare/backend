@@ -25,8 +25,6 @@ export class Campaign {
         url: string;
         photo: string;
         creator: User;
-        status: CampaignStatus;
-        createdAt: Date | null;
     }): Campaign {
         return new Campaign(
             props.id ?? null,
@@ -38,8 +36,8 @@ export class Campaign {
             props.url,
             props.photo,
             props.creator,
-            props.status ?? CampaignStatus.IN_REVIEW,
-            props.createdAt ?? new Date()
+            CampaignStatus.IN_REVIEW,
+            new Date()
         );
     }
 

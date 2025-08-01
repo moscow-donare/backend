@@ -7,7 +7,6 @@ import { campaigns } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
-const CODE_DB_CAMPAIGN_NOT_FOUND = "DB_ERROR::CAMPAIGN_NOT_FOUND";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
 
 export class CampaignDrizzleRepository implements ICampaignRepository {
@@ -23,7 +22,7 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
                 end_date: campaign.endDate,
                 url: campaign.url,
                 photo: campaign.photo,
-                creator_id: campaign.creator.id as number, //TODO: Revisar este codigo
+                creator_id: campaign.creator.id as number,
             }).returning();
             const created = result?.[0];
 
@@ -50,7 +49,6 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
             if (!user.id) {
                 return Result.Ok([]);
             }
-            //TODO: Revisar este codigo
             const result = await db.select().from(campaigns).where(eq(campaigns.creator_id, user.id));
             return Result.Ok(result.map(row => this.mapToDomain(row, user)));
         } catch (error) {

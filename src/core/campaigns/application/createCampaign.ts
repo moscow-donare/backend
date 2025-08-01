@@ -11,7 +11,6 @@ export type CreateCampaignInput = {
     url: string;
     photo: string;
     creator: User;
-    status?: CampaignStatus;
 };
 
 export async function createCampaign(
@@ -35,11 +34,9 @@ export async function createCampaign(
         }
     }
 
-    const campaign = Campaign.create({ //TODO: Revisar este codigo
-        ...input,
-        status: input.status ?? CampaignStatus.IN_REVIEW,
-        createdAt: null,
-    });
+    const campaign = Campaign.create(
+        input
+    );
 
     const createdResult = await repositories.campaignRepository.save(campaign);
     if (createdResult.IsErr) {
