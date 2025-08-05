@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import type { IAuthRepository } from 'src/infraestructure/repositories/web3auth/ports/IAuthRepository'
 import HonoService from 'src/infraestructure/hono/service'
 import { UserDrizzleRepository } from 'src/infraestructure/repositories/drizzle/UserDrizzleRepository'
+import { createTestHonoService } from 'tests/shared/createTestHonoService'
 
 const mockUser = {
     userId: 'testuser@donare.com',
@@ -13,7 +14,7 @@ const mockUser = {
     address: '0xabc123abc123abc123abc123abc123abc123abc1',
 }
 
-class MockWeb3AuthRepository implements IAuthRepository {
+export class MockWeb3AuthRepository implements IAuthRepository {
     async getUserInfo(token: string) {
         console.log("✅ Mock ejecutado con token:", token)
         return Result.Ok(mockUser)
@@ -24,11 +25,9 @@ let honoService: HonoService
 
 beforeEach(() => {
     // 👇 creás la app con dependencias mockeadas
-    honoService = new HonoService({
-        repositories: {
-            web3auth: new MockWeb3AuthRepository(),
-            user: new UserDrizzleRepository(),
-        },
+    honoService = createTestHonoService({
+        web3auth: new MockWeb3AuthRepository(),
+        user: new UserDrizzleRepository(),
     })
 })
 
