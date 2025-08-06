@@ -12,7 +12,7 @@ export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
-  category: varchar("category", { length: 100 }).notNull(),
+  category: integer("category").notNull(),
   goal: integer("goal").notNull(),
   end_date: timestamp("end_date", { withTimezone: true }).notNull(),
   url: varchar("url", { length: 255 }).notNull(),

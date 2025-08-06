@@ -1,11 +1,11 @@
-import { Campaign, CampaignStatus } from "../domain/campaign";
+import { Campaign, CampaignCategory, CampaignStatus } from "../domain/campaign";
 import type { User } from "../../users/domain/user";
 import type { ContainerCampaignRepository } from "../domain/ports/ICampaignRepository";
 
 export type CreateCampaignInput = {
     name: string;
     description: string;
-    category: string;
+    category: number;
     goal: number;
     endDate: Date;
     url: string;

@@ -1,4 +1,5 @@
 import type { User } from "$core/users/domain/user";
+import type { CreateCampaignInput } from "../application/createCampaign";
 
 export class Campaign {
     private constructor(
@@ -15,16 +16,7 @@ export class Campaign {
         public readonly createdAt: Date
     ) { }
 
-    static create(props: {
-        name: string;
-        description: string;
-        category: CampaignCategory;
-        goal: number;
-        endDate: Date;
-        url: string;
-        photo: string;
-        creator: User;
-    }): Campaign {
+    static create(props: CreateCampaignInput): Campaign {
         return new Campaign(
             null,
             props.name,

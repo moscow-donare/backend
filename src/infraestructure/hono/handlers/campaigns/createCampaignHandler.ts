@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createCampaign, type CreateCampaignInput } from "$core/campaigns/application/createCampaign";
+import { createCampaign, type CreateCampaignInput } from "../../../../core/campaigns/application/createCampaign";
 import type { RouteHandler } from "../../types";
 import verifyToken from "../../brokers/verifyToken";
 import makeValidationBroker from "../../brokers/validationDTO";
@@ -8,7 +8,7 @@ import HonoRouter from "../../router";
 const inputSchema = z.object({
     name: z.string().min(1),
     description: z.string().min(1),
-    category: z.string().min(1),
+    category: z.number().int().positive(),
     goal: z.number().int().positive(),
     endDate: z.coerce.date(),
     url: z.string().url(),

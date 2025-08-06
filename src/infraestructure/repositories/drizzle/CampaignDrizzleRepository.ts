@@ -1,7 +1,7 @@
 import type { ICampaignRepository } from "$core/campaigns/domain/ports/ICampaignRepository";
-import type { Campaign } from "$core/campaigns/domain/campaign";
-import type { User } from "$core/users/domain/user";
-import { Campaign as CampaignDomain, CampaignStatus } from "$core/campaigns/domain/campaign";
+import type { Campaign } from "src/core/campaigns/domain/campaign";
+import type { User } from "src/core/users/domain/user";
+import { Campaign as CampaignDomain, CampaignStatus } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";

@@ -1,7 +1,5 @@
-version: "3.8"
-
 services:
-  db:
+  db-donare-test:
     image: postgres:15
     container_name: donare_test_db
     restart: always
@@ -20,7 +18,7 @@ services:
       dockerfile: ./docker/local.dockerfile
     container_name: donare_test_backend
     depends_on:
-      - db
+      - db-donare-test
     env_file:
       - .env.test
     command: bash -c "bun run migrate:docker:test && bun run test"
