@@ -5,7 +5,7 @@ export class Campaign {
         public readonly id: number | null,
         public name: string,
         public description: string,
-        public category: string,
+        public category: CampaignCategory,
         public goal: number,
         public endDate: Date,
         public url: string,
@@ -16,10 +16,9 @@ export class Campaign {
     ) { }
 
     static create(props: {
-        id?: number | null;
         name: string;
         description: string;
-        category: string;
+        category: CampaignCategory;
         goal: number;
         endDate: Date;
         url: string;
@@ -27,7 +26,7 @@ export class Campaign {
         creator: User;
     }): Campaign {
         return new Campaign(
-            props.id ?? null,
+            null,
             props.name,
             props.description,
             props.category,
@@ -45,7 +44,7 @@ export class Campaign {
         id: number;
         name: string;
         description: string;
-        category: string;
+        category: CampaignCategory;
         goal: number;
         endDate: Date;
         url: string;
@@ -76,4 +75,12 @@ export enum CampaignStatus {
     ACTIVE = 2,
     CANCELLED = 3,
     COMPLETED = 4
+}
+
+export enum CampaignCategory {
+    Health = 0,
+    Education = 1,
+    Emergency = 2,
+    Raffle = 3,
+    Project = 4,
 }
