@@ -1,7 +1,7 @@
 services:
-  db-donare-test:
+  postgrestest:
     image: postgres:15
-    container_name: donare_test_db
+    container_name: Donare.Postgres.Test
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -12,13 +12,13 @@ services:
     volumes:
       - pgtestdata:/var/lib/postgresql/data
 
-  backend:
+  backendtest:
     build:
       context: .
       dockerfile: ./docker/local.dockerfile
-    container_name: donare_test_backend
+    container_name: Donare.Backend.Test
     depends_on:
-      - db-donare-test
+      - postgrestest
     env_file:
       - .env.test
     command: bash -c "bun run migrate:docker:test && bun run test"
