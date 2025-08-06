@@ -1,1 +1,0 @@
-ALTER TABLE "campaigns" ALTER COLUMN "category" SET DATA TYPE integer;

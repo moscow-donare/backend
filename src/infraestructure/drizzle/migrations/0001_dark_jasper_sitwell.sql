@@ -2,7 +2,7 @@ CREATE TABLE "campaigns" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"description" text NOT NULL,
-	"category" varchar(100) NOT NULL,
+	"category" integer NOT NULL,
 	"goal" integer NOT NULL,
 	"end_date" timestamp with time zone NOT NULL,
 	"url" varchar(255) NOT NULL,
