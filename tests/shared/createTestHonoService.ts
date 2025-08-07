@@ -16,7 +16,7 @@ export function createTestHonoService(
 ): HonoService {
     return new HonoService({
         repositories: {
-            web3auth: overrides.web3auth ?? new MockWeb3AuthRepository(),
+            web3auth: overrides.web3auth ?? new MockWeb3AuthRepository({}),
             user: overrides.user ?? new UserDrizzleRepository(),
             campaign: overrides.campaign ?? new CampaignDrizzleRepository(),
         }

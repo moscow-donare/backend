@@ -8,7 +8,7 @@ import HonoRouter from "../../router";
 const inputSchema = z.object({
     name: z.string().min(1),
     description: z.string().min(1),
-    category: z.number().int().positive(),
+    category: z.number().int(),
     goal: z.number().int().positive(),
     endDate: z.coerce.date(),
     url: z.string().url(),
@@ -32,6 +32,7 @@ const handler: RouteHandler = async (c) => {
     });
 
     if (createdCampaign.IsErr) {
+        c.status(400);
         return c.json({
             success: false,
             error: createdCampaign.Error,

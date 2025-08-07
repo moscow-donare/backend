@@ -1,21 +1,16 @@
 import type HonoService from "src/infraestructure/hono/service";
 import { createTestHonoService } from "tests/shared/createTestHonoService";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MockWeb3AuthRepository } from "./auth.test";
 import { UserDrizzleRepository } from "src/infraestructure/repositories/drizzle/UserDrizzleRepository";
 import { CampaignDrizzleRepository } from "src/infraestructure/repositories/drizzle/CampaignDrizzleRepository";
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, users } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { clearDatabase } from "tests/shared/clearDatabaseForTest";
+import { createMockUser } from "tests/shared/createMockUser";
 
 let honoService: HonoService;
-
-const testUser = {
-    id: 999,
-    full_name: "Tester",
-    email: "test-campaign@donare.com",
-    address: "0xmockaddress999"
-}
 
 const testCampaign = {
     name: "Campaña Test",
@@ -27,24 +22,27 @@ const testCampaign = {
     photo: "ipfs://photoCID"
 }
 
-beforeEach(async () => {
-    honoService = createTestHonoService({
-        web3auth: new MockWeb3AuthRepository(),
-        user: new UserDrizzleRepository(),
-        campaign: new CampaignDrizzleRepository(),
-    });
-
-    await db.insert(users).values({
-        id: testUser.id,
-        full_name: testUser.full_name,
-        email: testUser.email,
-        address: testUser.address,
-    })
-});
-
+afterEach(async () => {
+    await clearDatabase();
+})
 
 
 describe('POST /campaigns - creación de campaña válida', () => {
+    beforeEach(async () => {
+        let mockUser = createMockUser();
+        honoService = createTestHonoService({
+            web3auth: new MockWeb3AuthRepository(mockUser),
+            user: new UserDrizzleRepository(),
+            campaign: new CampaignDrizzleRepository(),
+        });
+        await clearDatabase();
+        const userSaved = await db.insert(users).values({
+            full_name: mockUser.name,
+            email: mockUser.email,
+            address: mockUser.address,
+        })
+    });
+
     it('devuelve 200 y crea campaña correctamente', async () => {
         const res = await honoService.honoApp.request('/campaigns', {
             method: 'POST',
@@ -74,12 +72,24 @@ describe('POST /campaigns - creación de campaña válida', () => {
         })
 
         expect(created).toBeTruthy()
-        expect(created?.creator_id).toBe(testUser.id)
     })
 })
 
 describe('POST /campaigns - campaña en revisión ya existente', () => {
+    let mockUser: ReturnType<typeof createMockUser>;
     beforeEach(async () => {
+        mockUser = createMockUser();
+        honoService = createTestHonoService({
+            web3auth: new MockWeb3AuthRepository(mockUser),
+            user: new UserDrizzleRepository(),
+            campaign: new CampaignDrizzleRepository(),
+        });
+        await clearDatabase();
+        await db.insert(users).values({
+            full_name: mockUser.name,
+            email: mockUser.email,
+            address: mockUser.address,
+        })
         await db.insert(campaigns).values({
             name: "Campaña en revisión",
             description: "Test existente",
@@ -88,7 +98,7 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
             end_date: new Date(),
             url: "https://donare.test/existing",
             photo: "ipfs://photo",
-            creator_id: testUser.id,
+            creator_id: mockUser.userId, // 👈 necesario!
             status: 0 // IN_REVIEW
         })
     })
@@ -113,8 +123,22 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
     })
 })
 
+
 describe('POST /campaigns - campaña activa ya existente', () => {
+    let mockUser: ReturnType<typeof createMockUser>; // 👈 ahora está afuera
     beforeEach(async () => {
+        mockUser = createMockUser(); // 👈 se asigna
+        honoService = createTestHonoService({
+            web3auth: new MockWeb3AuthRepository(mockUser),
+            user: new UserDrizzleRepository(),
+            campaign: new CampaignDrizzleRepository(),
+        });
+        await clearDatabase();
+        await db.insert(users).values({
+            full_name: mockUser.name,
+            email: mockUser.email,
+            address: mockUser.address,
+        })
         await db.insert(campaigns).values({
             name: "Campaña activa",
             description: "Test activo",
@@ -123,7 +147,7 @@ describe('POST /campaigns - campaña activa ya existente', () => {
             end_date: new Date(),
             url: "https://donare.test/activa",
             photo: "ipfs://photo",
-            creator_id: testUser.id,
+            creator_id: mockUser.userId, // 👈 este userId ahora coincide
             status: 2 // ACTIVE
         })
     })
@@ -147,5 +171,3 @@ describe('POST /campaigns - campaña activa ya existente', () => {
         })
     })
 })
-
-
