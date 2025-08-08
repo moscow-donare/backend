@@ -8,7 +8,7 @@ import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, users } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { clearDatabase } from "tests/shared/clearDatabaseForTest";
-import { createMockUser } from "tests/shared/createMockUser";
+import { CreateMockUser } from "tests/shared/createMockUser";
 
 const testCampaign = {
     name: "Campaña Test",
@@ -26,10 +26,10 @@ afterAll(async () => {
 
 describe('POST /campaigns - creación de campaña válida', () => {
     let honoService: HonoService;
+    let mockUser;
     beforeEach(async () => {
-
         await clearDatabase();
-        let mockUser = createMockUser();
+        mockUser = CreateMockUser.getInstance().create()
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
@@ -74,22 +74,25 @@ describe('POST /campaigns - creación de campaña válida', () => {
 })
 
 describe('POST /campaigns - campaña en revisión ya existente', () => {
-    let mockUser: ReturnType<typeof createMockUser>;
+    let mockUser;
     let honoService: HonoService;
     beforeEach(async () => {
-
         await clearDatabase();
-        mockUser = createMockUser();
+        mockUser = CreateMockUser.getInstance().create()
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
             campaign: new CampaignDrizzleRepository(),
         });
-        await db.insert(users).values({
-            full_name: mockUser.name,
-            email: mockUser.email,
-            address: mockUser.address,
-        })
+        const [userSaved] = await db
+            .insert(users)
+            .values({
+                full_name: mockUser.name,
+                email: mockUser.email,
+                address: mockUser.address,
+            })
+            .returning();
+
         await db.insert(campaigns).values({
             name: "Campaña en revisión",
             description: "Test existente",
@@ -98,7 +101,7 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
             end_date: new Date(),
             url: "https://donare.test/existing",
             photo: "ipfs://photo",
-            creator_id: mockUser.userId,
+            creator_id: userSaved?.id ?? 1,
             status: 0
         })
     })
@@ -124,22 +127,25 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
 })
 
 describe('POST /campaigns - campaña activa ya existente', () => {
-    let mockUser: ReturnType<typeof createMockUser>; // 👈 ahora está afuera
+    let mockUser;
     let honoService: HonoService;
     beforeEach(async () => {
         await clearDatabase();
-
-        mockUser = createMockUser(); // 👈 se asigna
+        mockUser = CreateMockUser.getInstance().create() // 👈 se asigna
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
             campaign: new CampaignDrizzleRepository(),
         });
-        await db.insert(users).values({
-            full_name: mockUser.name,
-            email: mockUser.email,
-            address: mockUser.address,
-        })
+        const [userSaved] = await db
+            .insert(users)
+            .values({
+                full_name: mockUser.name,
+                email: mockUser.email,
+                address: mockUser.address,
+            })
+            .returning();
+
         await db.insert(campaigns).values({
             name: "Campaña activa",
             description: "Test activo",
@@ -148,7 +154,7 @@ describe('POST /campaigns - campaña activa ya existente', () => {
             end_date: new Date(),
             url: "https://donare.test/activa",
             photo: "ipfs://photo",
-            creator_id: mockUser.userId, // 👈 este userId ahora coincide
+            creator_id: userSaved?.id ?? 1,
             status: 2 // ACTIVE
         })
     })
