@@ -1,44 +1,31 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest'
 import { db } from 'src/infraestructure/drizzle/db'
-import { campaigns, users } from 'src/infraestructure/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { users } from 'src/infraestructure/drizzle/schema'
 import type { IAuthRepository } from 'src/infraestructure/repositories/web3auth/ports/IAuthRepository'
 import HonoService from 'src/infraestructure/hono/service'
 import { UserDrizzleRepository } from 'src/infraestructure/repositories/drizzle/UserDrizzleRepository'
 import { createTestHonoService } from 'tests/shared/createTestHonoService'
 import { clearDatabase } from 'tests/shared/clearDatabaseForTest'
-import { set } from 'zod/v4'
 import { createMockUser } from 'tests/shared/createMockUser'
-
-const mockUser = {
-    userId: 'testuser@donare.com',
-    email: 'testuser@donare.com',
-    name: 'Test User',
-    address: '0xabc123abc123abc123abc123abc123abc123abc1',
-}
 
 export class MockWeb3AuthRepository implements IAuthRepository {
     constructor(private userData: any) { }
 
     async getUserInfo(token: string) {
-        console.log("✅ Mock ejecutado con token:", token)
         return Result.Ok(this.userData)
     }
 }
 
-
-let honoService: HonoService
-
-afterEach(async () => {
+beforeAll(async () => {
     await clearDatabase();
-})
-
+});
 
 describe('POST /auth/web3 - usuario no existe, se crea', () => {
     let honoService: HonoService
     const mockUser = createMockUser()
 
     beforeEach(async () => {
+
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
@@ -73,6 +60,7 @@ describe('POST /auth/web3 - usuario ya existe', () => {
     const mockUser = createMockUser()
 
     beforeEach(async () => {
+
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
@@ -111,7 +99,6 @@ describe('POST /auth/web3 - usuario ya existe', () => {
 
         // ✅ Verificamos que no se haya creado un nuevo usuario
         const usersCount = (await db.query.users.findMany()).length
-        console.log("Cantidad de usuarios:", usersCount)
         expect(usersCount).toBe(1)
     })
 })
@@ -120,16 +107,18 @@ describe('POST /auth/web3 - error al crear usuario token invalido para web3auth'
     let honoService: HonoService
     const mockUser = createMockUser()
     beforeEach(async () => {
+
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
         })
         await clearDatabase()
         // respuesta de Web3AuthRepository.getUserInfo con un error
-        vi.spyOn(MockWeb3AuthRepository.prototype, 'getUserInfo').mockResolvedValue(Result.Err({
-            code: "InvalidToken",
-            message: "The provided token is invalid.",
-        }) as any)
+        vi.spyOn(MockWeb3AuthRepository.prototype, 'getUserInfo')
+            .mockImplementationOnce(() => Promise.resolve(Result.Err({
+                code: "InvalidToken",
+                message: "The provided token is invalid.",
+            }) as any));
 
     })
 

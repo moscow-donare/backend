@@ -8,7 +8,7 @@
     "migrate:local": "DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit migrate",
     "migrate:docker": "DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit migrate",
     "migrate:docker:test": "DATABASE_URL=postgresql://postgres:postgres@postgrestest:5432/donare_test bun drizzle-kit generate && DATABASE_URL=postgresql://postgres:postgres@postgrestest:5432/donare_test bun drizzle-kit migrate",
-    "test": "vitest run  --sequence.mode hoisted"
+    "test": "vitest run --isolate --sequence.mode hoisted"
   },
   "devDependencies": {
     "@types/bun": "latest",

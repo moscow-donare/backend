@@ -1,7 +1,7 @@
 import type HonoService from "src/infraestructure/hono/service";
 import { createTestHonoService } from "tests/shared/createTestHonoService";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MockWeb3AuthRepository } from "./auth.test";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { MockWeb3AuthRepository } from "./auth.test.ts";
 import { UserDrizzleRepository } from "src/infraestructure/repositories/drizzle/UserDrizzleRepository";
 import { CampaignDrizzleRepository } from "src/infraestructure/repositories/drizzle/CampaignDrizzleRepository";
 import { db } from "src/infraestructure/drizzle/db";
@@ -9,8 +9,6 @@ import { campaigns, users } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { clearDatabase } from "tests/shared/clearDatabaseForTest";
 import { createMockUser } from "tests/shared/createMockUser";
-
-let honoService: HonoService;
 
 const testCampaign = {
     name: "Campaña Test",
@@ -22,31 +20,31 @@ const testCampaign = {
     photo: "ipfs://photoCID"
 }
 
-afterEach(async () => {
+afterAll(async () => {
     await clearDatabase();
-})
-
+});
 
 describe('POST /campaigns - creación de campaña válida', () => {
+    let honoService: HonoService;
     beforeEach(async () => {
+
+        await clearDatabase();
         let mockUser = createMockUser();
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
             campaign: new CampaignDrizzleRepository(),
         });
-        await clearDatabase();
-        const userSaved = await db.insert(users).values({
+        await db.insert(users).values({
             full_name: mockUser.name,
             email: mockUser.email,
             address: mockUser.address,
         })
     });
-
     it('devuelve 200 y crea campaña correctamente', async () => {
         const res = await honoService.honoApp.request('/campaigns', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
             body: JSON.stringify(testCampaign)
         })
 
@@ -77,14 +75,16 @@ describe('POST /campaigns - creación de campaña válida', () => {
 
 describe('POST /campaigns - campaña en revisión ya existente', () => {
     let mockUser: ReturnType<typeof createMockUser>;
+    let honoService: HonoService;
     beforeEach(async () => {
+
+        await clearDatabase();
         mockUser = createMockUser();
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
             campaign: new CampaignDrizzleRepository(),
         });
-        await clearDatabase();
         await db.insert(users).values({
             full_name: mockUser.name,
             email: mockUser.email,
@@ -98,15 +98,15 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
             end_date: new Date(),
             url: "https://donare.test/existing",
             photo: "ipfs://photo",
-            creator_id: mockUser.userId, // 👈 necesario!
-            status: 0 // IN_REVIEW
+            creator_id: mockUser.userId,
+            status: 0
         })
     })
 
     it('devuelve 400 con error USER_CAMPAIGN_IN_REVIEW', async () => {
         const res = await honoService.honoApp.request('/campaigns', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
             body: JSON.stringify(testCampaign)
         })
 
@@ -123,17 +123,18 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
     })
 })
 
-
 describe('POST /campaigns - campaña activa ya existente', () => {
     let mockUser: ReturnType<typeof createMockUser>; // 👈 ahora está afuera
+    let honoService: HonoService;
     beforeEach(async () => {
+        await clearDatabase();
+
         mockUser = createMockUser(); // 👈 se asigna
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
             campaign: new CampaignDrizzleRepository(),
         });
-        await clearDatabase();
         await db.insert(users).values({
             full_name: mockUser.name,
             email: mockUser.email,
@@ -155,7 +156,7 @@ describe('POST /campaigns - campaña activa ya existente', () => {
     it('devuelve 400 con error USER_ACTIVE_CAMPAIGN_EXISTS', async () => {
         const res = await honoService.honoApp.request('/campaigns', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
             body: JSON.stringify(testCampaign)
         })
 
