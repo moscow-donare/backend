@@ -20,7 +20,6 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
                 category: campaign.category,
                 goal: campaign.goal,
                 end_date: campaign.endDate,
-                url: campaign.url,
                 photo: campaign.photo,
                 creator_id: campaign.creator.id as number,
             }).returning();
@@ -69,11 +68,11 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
             category: row.category,
             goal: row.goal,
             endDate: row.end_date,
-            url: row.url,
             photo: row.photo,
             creator,
             status: row.status ?? CampaignStatus.IN_REVIEW,
             createdAt: row.created_at,
+            updatedAt: row.updated_at,
         });
     }
 }

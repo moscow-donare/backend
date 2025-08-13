@@ -11,7 +11,6 @@ const inputSchema = z.object({
     category: z.number().int(),
     goal: z.number().int().positive(),
     endDate: z.coerce.date(),
-    url: z.string().url(),
     photo: z.string().min(1),
 });
 

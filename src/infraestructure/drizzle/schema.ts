@@ -15,11 +15,11 @@ export const campaigns = pgTable("campaigns", {
   category: integer("category").notNull(),
   goal: integer("goal").notNull(),
   end_date: timestamp("end_date", { withTimezone: true }).notNull(),
-  url: varchar("url", { length: 255 }).notNull(),
   photo: varchar("photo", { length: 255 }).notNull(),
   creator_id: integer("creator_id").notNull().references(() => users.id),
   status: integer("status").notNull().default(0),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 

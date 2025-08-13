@@ -16,7 +16,6 @@ const testCampaign = {
     category: 0,
     goal: 1000,
     endDate: new Date(Date.now() + 86400000).toISOString(),
-    url: "https://donare.test/campaign",
     photo: "ipfs://photoCID"
 }
 
@@ -59,7 +58,6 @@ describe('POST /campaigns - creación de campaña válida', () => {
                 description: testCampaign.description,
                 category: testCampaign.category,
                 goal: testCampaign.goal,
-                url: testCampaign.url,
                 photo: testCampaign.photo,
                 status: 0 // IN_REVIEW
             }
@@ -99,7 +97,6 @@ describe('POST /campaigns - campaña en revisión ya existente', () => {
             category: 1,
             goal: 500,
             end_date: new Date(),
-            url: "https://donare.test/existing",
             photo: "ipfs://photo",
             creator_id: userSaved?.id ?? 1,
             status: 0
@@ -152,7 +149,6 @@ describe('POST /campaigns - campaña activa ya existente', () => {
             category: 1,
             goal: 500,
             end_date: new Date(),
-            url: "https://donare.test/activa",
             photo: "ipfs://photo",
             creator_id: userSaved?.id ?? 1,
             status: 2 // ACTIVE

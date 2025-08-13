@@ -28,7 +28,7 @@ const routes: Route[] = [
     schema: {
       method: "POST",
       id: "createCampaign",
-      url: "/campaigns"
+      url: "/campaigns/create"
     }
   }
 ];

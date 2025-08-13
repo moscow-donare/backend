@@ -8,7 +8,6 @@ export type CreateCampaignInput = {
     category: number;
     goal: number;
     endDate: Date;
-    url: string;
     photo: string;
     creator: User;
 };
@@ -61,10 +60,10 @@ export async function createCampaign(
         category: created.category,
         goal: created.goal,
         endDate: created.endDate,
-        url: created.url,
         photo: created.photo,
         creator: created.creator,
         status: created.status,
         createdAt: created.createdAt,
+        updatedAt: created.updatedAt,
     });
 }
