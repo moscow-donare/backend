@@ -3,6 +3,7 @@ import type { ResultError } from "../../shared/Result";
 import type { IAuthRepository } from "../repositories/web3auth/ports/IAuthRepository";
 import type { IUserRepository } from "$core/users/domain/ports/IUserRepository";
 import type { User } from "$core/users/domain/user";
+import type { ICampaignRepository } from "$core/campaigns/domain/ports/ICampaignRepository";
 
 export type Hono = HHono<{
   Variables: ContextVariables;
@@ -15,6 +16,7 @@ export type HonoServiceDependencies = {
   repositories: {
     web3auth: IAuthRepository;
     user: IUserRepository;
+    campaign: ICampaignRepository;
   };
 };
 
@@ -22,9 +24,10 @@ export interface ContextVariables {
   // Repositories
   "repositories:web3auth": HonoServiceDependencies['repositories']["web3auth"];
   "repositories:user": HonoServiceDependencies['repositories']["user"];
+  "repositories:campaign": HonoServiceDependencies['repositories']["campaign"];
 
   // Entities
-  "user:session": User; 
+  "user:session": User;
   "request:body": unknown;
 }
 

@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, timestamp, text, integer } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -8,5 +8,19 @@ export const users = pgTable("users", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+export const campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  category: integer("category").notNull(),
+  goal: integer("goal").notNull(),
+  end_date: timestamp("end_date", { withTimezone: true }).notNull(),
+  photo: varchar("photo", { length: 255 }).notNull(),
+  creator_id: integer("creator_id").notNull().references(() => users.id),
+  status: integer("status").notNull().default(0),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
 
-export const schema = { users };
+
+export const schema = { users, campaigns };
