@@ -16,19 +16,18 @@ export class MockWeb3AuthRepository implements IAuthRepository {
     }
 }
 
-beforeAll(async () => {
-    await clearDatabase();
-});
-
-describe('POST /auth/web3 - usuario no existe, se crea', () => {
+describe('POST /auth/web3 - usuario no existe, se crea', async () => {
     let honoService: HonoService
     let mockUser: any;
-    beforeEach(async () => {
+    await beforeEach(async () => {
         mockUser = CreateMockUser.getInstance().create()
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
         })
+    })
+    await afterEach(async () => {
+        await clearDatabase();
     })
     it('crea el usuario y devuelve 200 con sus datos', async () => {
         const res = await honoService.honoApp.request('/auth/web3', {
@@ -52,11 +51,11 @@ describe('POST /auth/web3 - usuario no existe, se crea', () => {
     })
 })
 
-describe('POST /auth/web3 - usuario ya existe', () => {
+describe('POST /auth/web3 - usuario ya existe', async () => {
     let honoService: HonoService
     let mockUser: any;
 
-    beforeEach(async () => {
+    await beforeEach(async () => {
         mockUser = CreateMockUser.getInstance().create()
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
@@ -67,6 +66,10 @@ describe('POST /auth/web3 - usuario ya existe', () => {
             email: mockUser.email,
             address: mockUser.address,
         })
+    })
+
+    await afterEach(async () => {
+        await clearDatabase();
     })
 
     it('devuelve 200 y no crea un nuevo usuario', async () => {
@@ -91,13 +94,11 @@ describe('POST /auth/web3 - usuario ya existe', () => {
     })
 })
 
-describe('POST /auth/web3 - error al crear usuario token invalido para web3auth', () => {
+describe('POST /auth/web3 - error al crear usuario token invalido para web3auth', async () => {
     let honoService: HonoService
-    let mockUser;
-    beforeEach(async () => {
-        mockUser = CreateMockUser.getInstance().create()
+    beforeEach(() => {
         honoService = createTestHonoService({
-            web3auth: new MockWeb3AuthRepository(mockUser),
+            web3auth: new MockWeb3AuthRepository({}),
             user: new UserDrizzleRepository(),
         })
         // respuesta de Web3AuthRepository.getUserInfo con un error

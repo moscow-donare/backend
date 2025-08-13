@@ -22,6 +22,7 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
                 end_date: campaign.endDate,
                 photo: campaign.photo,
                 creator_id: campaign.creator.id as number,
+                status: campaign.status,
             }).returning();
             const created = result?.[0];
 
