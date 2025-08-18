@@ -61,6 +61,30 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
         }
     }
 
+    async findById(id: number): AsyncResult<Campaign | null> {
+        try { //revisar codigo, no llegue a revisarlo (stefano)
+            const result = await db.select().from(campaigns).where(eq(campaigns.id, id));
+            const row = result?.[0];
+            if (!row) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_FIND_FAILED,
+                    message: "No se encontró la campaña",
+                });
+            }
+            // You may need to fetch the creator user if required, here assuming creator is not needed
+            // If you have a way to get the User by id, you should fetch it here
+            // For now, returning null for creator
+            return Result.Ok(this.mapToDomain(row, { id: row.creator_id } as User));
+        } catch (error) {
+            console.error("Error finding campaign by id:", error);
+            return Result.Err({
+                code: CODE_DB_CAMPAIGN_FIND_FAILED,
+                message: "Error al buscar campaña por id",
+                details: error,
+            });
+        }
+    }
+
     private mapToDomain(row: any, creator: User): Campaign {
         return CampaignDomain.createWithId({
             id: row.id,

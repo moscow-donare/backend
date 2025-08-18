@@ -2,6 +2,7 @@ import getHelloWorldHandler from "./handlers/getHelloWorld";
 import loginWeb3AuthHandler from "./handlers/auth/loginWeb3Auth"
 import type { Route } from "./types";
 import createCampaignHandler from "./handlers/campaigns/createCampaignHandler";
+import getCampaignHandler from "./handlers/campaigns/getCampaignHandler";
 
 const routes: Route[] = [
   {
@@ -29,6 +30,14 @@ const routes: Route[] = [
       method: "POST",
       id: "createCampaign",
       url: "/campaigns/create"
+    }
+  },
+  {
+    handler: getCampaignHandler,
+    schema: {
+      method: "GET",
+      id: "getCampaign",
+      url: "/campaigns/:id"
     }
   }
 ];
