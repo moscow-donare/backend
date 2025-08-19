@@ -36,7 +36,7 @@ const routes: Route[] = [
   {
     schema: {
       id: "getCampaignByCriteria",
-      url: "/campaigns/criteria",
+      url: "/campaigns/creator/criteria",
       method: "GET",
     },
     handler: getCampaignsOfUserHandler
