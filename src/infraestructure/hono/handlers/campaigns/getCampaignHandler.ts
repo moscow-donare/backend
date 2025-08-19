@@ -7,6 +7,7 @@ const handler: RouteHandler = async (c) => {
     const campaignRepository = c.get("repositories:campaign");
     const user = c.get("user:session");
     const campaignId = Number(c.req.param("id"));
+    console.log("Campaign ID:", campaignId);
 
     const input: GetCampaignInput = {
         campaignId: campaignId,

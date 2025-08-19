@@ -5,12 +5,15 @@ import { Campaign as CampaignDomain, CampaignStatus } from "src/core/campaigns/d
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
 
-export class CampaignDrizzleRepository implements ICampaignRepository {
-    constructor() { }
+export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign> implements ICampaignRepository {
+    constructor() {
+        super(campaigns);
+    }
 
     async save(campaign: Campaign): AsyncResult<Campaign> {
         try {
@@ -99,5 +102,13 @@ export class CampaignDrizzleRepository implements ICampaignRepository {
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         });
+    }
+
+    toEntity(drizzleEntity: any): Campaign {
+        return this.mapToDomain(drizzleEntity, drizzleEntity.creator as User);
+    }
+
+    getDefaultOrderBy(): string {
+        return "id";
     }
 }

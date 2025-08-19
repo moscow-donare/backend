@@ -3,6 +3,7 @@ import loginWeb3AuthHandler from "./handlers/auth/loginWeb3Auth"
 import type { Route } from "./types";
 import createCampaignHandler from "./handlers/campaigns/createCampaignHandler";
 import getCampaignHandler from "./handlers/campaigns/getCampaignHandler";
+import getCampaignsOfUserHandler from "./handlers/campaigns/getCampaignsOfUser";
 
 const routes: Route[] = [
   {
@@ -33,12 +34,12 @@ const routes: Route[] = [
     }
   },
   {
-    handler: getCampaignHandler,
     schema: {
+      id: "getCampaignByCriteria",
+      url: "/campaigns/criteria",
       method: "GET",
-      id: "getCampaign",
-      url: "/campaigns/:id"
-    }
+    },
+    handler: getCampaignsOfUserHandler
   }
 ];
 
