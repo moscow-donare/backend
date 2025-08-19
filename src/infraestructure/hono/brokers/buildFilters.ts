@@ -3,7 +3,7 @@ import { OperatorSQLValueObject } from "$shared/core/domain/OperatorSQLValueObje
 
 type QueryFilters = Record<string, string[]>;
 
-export function buildFilters(query: QueryFilters): Filter[] {
+export function buildFilters(query: QueryFilters, fieldToType: Record<string, string>): Filter[] {
     type FilterProps = Partial<{ field: string; value: unknown; condition: string }>;
     const filtersMap: Record<string, FilterProps> = {};
 
@@ -16,26 +16,11 @@ export function buildFilters(query: QueryFilters): Filter[] {
         (filtersMap[index!] as FilterProps)[prop as keyof FilterProps] = valArr[0];
     }
 
-    // Transformar cada entrada en Filter
     return Object.values(filtersMap).map((f) => {
         if (!f.field || f.value === undefined) {
             throw new Error("Invalid filter: field and value are required.");
         }
-        // Mapeo de tipos si es necesario
-        f = mappingTypeField(f.field, f.value, {
-            // Aquí puedes definir los tipos esperados para cada campo
-            "id": "number",
-            "name": "string",
-            "description": "string",
-            "category": "string",
-            "goal": "number",
-            "endDate": "date",
-            "photo": "string",
-            "creator": "user",
-            "status": "string",
-            "createdAt": "date",
-            "updatedAt": "date",
-        });
+        f = mappingTypeField(f.field, f.value, fieldToType);
         return new Filter(
             f.field!,
             f.value!,

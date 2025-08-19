@@ -6,11 +6,25 @@ import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import listByCriteria from "$shared/core/application/listByCriteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
 
+const mappingTypeField = {
+    "id": "number",
+    "name": "string",
+    "description": "string",
+    "category": "number",
+    "goal": "number",
+    "endDate": "date",
+    "photo": "string",
+    "creator": "user",
+    "status": "string",
+    "createdAt": "date",
+    "updatedAt": "date",
+};
+
 const handler: RouteHandler = async (c) => {
     const campaignRepository = c.get("repositories:campaign");
     const user = c.get("user:session");
     const filters = c.req.queries();
-    const filtersCr = buildFilters(filters);
+    const filtersCr = buildFilters(filters, mappingTypeField);
     console.log("Campaign filters:", filtersCr);
     const criteria: Criteria = new Criteria(filtersCr);
     const userFilter = new Filter("creator_id", user.id);
