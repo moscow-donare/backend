@@ -4,6 +4,7 @@ import type { Route } from "./types";
 import createCampaignHandler from "./handlers/campaigns/createCampaignHandler";
 import getCampaignHandler from "./handlers/campaigns/getCampaignHandler";
 import getCampaignsOfUserHandler from "./handlers/campaigns/getCampaignsOfUser";
+import editCampaignHandler from "./handlers/campaigns/editCampaign";
 
 const routes: Route[] = [
   {
@@ -40,6 +41,14 @@ const routes: Route[] = [
       method: "GET",
     },
     handler: getCampaignsOfUserHandler
+  },
+  {
+    handler: editCampaignHandler,
+    schema: {
+      id: "editCampaign",
+      url: "/campaigns/edit/:id",
+      method: "PATCH",
+    }
   }
 ];
 

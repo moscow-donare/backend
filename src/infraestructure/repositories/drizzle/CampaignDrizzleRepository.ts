@@ -9,6 +9,12 @@ import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/Driz
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
+const CODE_DB_CAMPAIGN_EDIT_FAILED = "DB_ERROR::CAMPAIGN_EDIT_FAILED";
+
+type EditableCampaignFields = Pick<
+    Campaign,
+    'name' | 'description' | 'category' | 'goal' | 'endDate' | 'photo'
+>;
 
 export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign> implements ICampaignRepository {
     constructor() {
@@ -83,6 +89,28 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             return Result.Err({
                 code: CODE_DB_CAMPAIGN_FIND_FAILED,
                 message: "Error al buscar campaña por id",
+                details: error,
+            });
+        }
+    }
+
+    async edit(id: number, updates: Partial<EditableCampaignFields>): AsyncResult<Campaign> {
+        try {
+            const result = await db.update(campaigns).set(updates).where(eq(campaigns.id, id)).returning();
+
+            const updated = result?.[0];
+            if (!updated) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_EDIT_FAILED,
+                    message: "No se pudo actualizar la campaña",
+                });
+            }
+
+            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User));
+        } catch (error) {
+            return Result.Err({
+                code: CODE_DB_CAMPAIGN_EDIT_FAILED,
+                message: "Error al actualizar la campaña",
                 details: error,
             });
         }
