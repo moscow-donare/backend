@@ -1,12 +1,13 @@
+import type { User } from "$core/users/domain/user";
 import listByCriteria from "$shared/core/application/listByCriteria";
 import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
-import { Campaign } from "../domain/campaign";
+import { Campaign, CampaignStatus } from "../domain/campaign";
 import type { ContainerCampaignRepository } from "../domain/ports/ICampaignRepository";
 
 export type EditCampaignInput = {
     campaignId: number;
-    creatorId: number;
+    creator: User;
     name?: string;
     description?: string;
     category?: number;
@@ -17,33 +18,36 @@ export type EditCampaignInput = {
 
 export async function editCampaign(
     input: EditCampaignInput,
-    //creatorId: number,
     repositories: ContainerCampaignRepository
 ): AsyncResult<Campaign> {
-    // TODO: Aca no se deberia validar que quien trata de editar la campaña sea el creador? también la campaña se puede editar en ciertos estados
-    // Dejo el codigo comentado de como se haría con criteria para evitar hacer los findBy...
-    //const criteria: Criteria = new Criteria();
-    //const filterbyId: Filter = new Filter('id', input.campaignId);
-    // aca podes agregar el filtro de creatorId que se pasa por parametro y en el handler lo recibis por la session
-    //const filterByCreatorId: Filter = new Filter('creator_id', creatorId);
-    // agregas los filtros al criteria
-    //criteria.addFilter(filterbyId);
-    //criteria.addFilter(filterByCreatorId);
-    // usas el caso de uso del shared para buscar la campaña
-    //const campaignResult = await listByCriteria(repositories.campaignRepository, criteria);
+    const criteria: Criteria = new Criteria();
+    const filterbyId: Filter = new Filter('id', input.campaignId);
+    criteria.addFilter(filterbyId);
+
+    // const campaignResult = await listByCriteria(repositories.campaignRepository, criteria);
+    // console.log('criteria encontrado', campaignResult);
     const campaignResult = await repositories.campaignRepository.findById(input.campaignId);
+
     if (campaignResult.IsErr || !campaignResult.Unwrap()) {
         return Result.Err({
             code: "CAMPAIGN_NOT_FOUND",
             message: "La campaña no fue encontrada",
         });
     }
+
     const campaign = campaignResult.Unwrap();
 
-    if (campaign.creator.id !== input.creatorId) {
+    if (campaign?.creator.id !== input.creator.id) {
         return Result.Err({
-            code: "USER_NOT_CAMPAIGN_CREATOR",
+            code: "CAMPAIGN_CREATOR_MISMATCH",
             message: "El usuario no es el creador de la campaña",
+        });
+    }
+
+    if (campaign?.status !== CampaignStatus.IN_REVIEW && campaign?.status !== CampaignStatus.ACTIVE) {
+        return Result.Err({
+            code: "CAMPAIGN_CANNOT_BE_EDITED",
+            message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada",
         });
     }
 

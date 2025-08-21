@@ -4,6 +4,7 @@ import HonoRouter from "../../router";
 import { getCampaign, type GetCampaignInput } from "$core/campaigns/application/getCampaign";
 import { z } from "zod";
 import { editCampaign, type EditCampaignInput } from "$core/campaigns/application/editCampaign";
+import makeValidationBroker from "../../brokers/validationDTO";
 
 const inputSchema = z.object({
     name: z.string().min(1).optional(),
@@ -11,8 +12,7 @@ const inputSchema = z.object({
     category: z.number().int().optional(),
     goal: z.number().int().positive().optional(),
     endDate: z.coerce.date().optional(),
-    photo: z.string().min(1).optional(),
-    creatorId: z.number().min(1)
+    photo: z.string().min(1).optional()
 });
 
 type InputType = z.infer<typeof inputSchema>;
@@ -21,9 +21,11 @@ const handler: RouteHandler = async (c) => {
     const body = c.get("request:body") as InputType;
     const campaignRepository = c.get("repositories:campaign");
     const campaignId = Number(c.req.param("id"));
+    const user = c.get("user:session");
 
     const input: EditCampaignInput = {
         campaignId: campaignId,
+        creator: user,
         ...body,
     };
 
@@ -46,4 +48,4 @@ const handler: RouteHandler = async (c) => {
     });
 };
 
-export default HonoRouter.resolve(handler, [verifyToken]);
+export default HonoRouter.resolve(handler, [makeValidationBroker(inputSchema), verifyToken]);

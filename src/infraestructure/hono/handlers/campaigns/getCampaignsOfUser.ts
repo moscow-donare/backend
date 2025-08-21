@@ -25,7 +25,6 @@ const handler: RouteHandler = async (c) => {
     const user = c.get("user:session");
     const filters = c.req.queries();
     const filtersCr = buildFilters(filters, mappingTypeField);
-    console.log("Campaign filters:", filtersCr);
     const criteria: Criteria = new Criteria(filtersCr);
     const userFilter = new Filter("creator_id", user.id);
     criteria.addFilter(userFilter);
