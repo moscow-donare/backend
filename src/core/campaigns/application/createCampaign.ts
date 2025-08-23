@@ -20,18 +20,18 @@ export async function createCampaign(
     const userCampaignsResult = await repositories.campaignRepository.findByUser(input.creator);
     if (userCampaignsResult.IsOk) {
         const campaigns = userCampaignsResult.Unwrap();
-        // if (campaigns.some(c => c.status === CampaignStatus.IN_REVIEW)) {
-        //     return Result.Err({
-        //         code: "USER_CAMPAIGN_IN_REVIEW",
-        //         message: "El usuario ya tiene una campaña en revisión",
-        //     });
-        // }
-        // if (campaigns.some(c => c.status === CampaignStatus.ACTIVE)) {
-        //     return Result.Err({
-        //         code: "USER_ACTIVE_CAMPAIGN_EXISTS",
-        //         message: "El usuario ya tiene una campaña activa",
-        //     });
-        // }
+        if (campaigns.some(c => c.statusChange[0]?.getState() === CampaignStatus.IN_REVIEW)) {
+            return Result.Err({
+                code: "USER_CAMPAIGN_IN_REVIEW",
+                message: "El usuario ya tiene una campaña en revisión",
+            });
+        }
+        if (campaigns.some(c => c.statusChange[0]?.getState() === CampaignStatus.ACTIVE)) {
+            return Result.Err({
+                code: "USER_ACTIVE_CAMPAIGN_EXISTS",
+                message: "El usuario ya tiene una campaña activa",
+            });
+        }
     }
 
     const campaign = Campaign.create(
