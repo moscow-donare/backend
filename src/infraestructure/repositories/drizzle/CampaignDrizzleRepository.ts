@@ -42,17 +42,24 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            let statusChanges: any[] = []
-
-            campaign.statusChange.forEach(async (stateChange) => {
-                const statusChange = await db.insert(state_changes).values({
+            const statusChanges = await Promise.all(campaign.statusChange.map(async (stateChange) => {
+                return await db.insert(state_changes).values({
                     campaign_id: created.id,
                     status: stateChange.getState(),
                     reason: stateChange.getReason()
                 }).returning();
-                statusChanges.push(statusChange);
-            });
-
+            }));
+            console.log('status changes', statusChanges)
+            // campaign.statusChange.forEach(async (stateChange) => {
+            //     const statusChange = await db.insert(state_changes).values({
+            //         campaign_id: created.id,
+            //         status: stateChange.getState(),
+            //         reason: stateChange.getReason()
+            //     }).returning();
+            //     console.log('status change', statusChange)
+            //     statusChanges.push(statusChange);
+            // });
+            // console.log('array de status change', statusChanges)
             return Result.Ok(this.mapToDomain(created, campaign.creator, statusChanges));
         } catch (error) {
             console.error("Error saving campaign:", error);
