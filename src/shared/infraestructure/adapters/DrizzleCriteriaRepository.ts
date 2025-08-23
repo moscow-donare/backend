@@ -3,22 +3,48 @@ import type { ICriteriaRepository } from "../ports/ICriteriaRepository";
 import { db } from "src/infraestructure/drizzle/db";
 import { and, eq, gt, gte, inArray, isNull, like, lt, lte, not, notInArray, type SQL } from "drizzle-orm";
 import type { Filter } from "$shared/core/domain/criteria/Filter";
+import type { any } from "zod/v4";
 
-export abstract class DrizzleCriteriaRepository<T> implements ICriteriaRepository<T> {
-    constructor(private drizzleEntity: any) { }
+export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.query> implements ICriteriaRepository<T> {
+    constructor(private drizzleEntity: any, private drizzleQueryEntity?: Q) { }
 
     async matching(criteria: Criteria): AsyncResult<T[]> {
         try {
             const filters = this.getFilters(criteria);
             const orderBy = criteria.getOrderBy() || this.getDefaultOrderBy();
+            const relations = this.getRelations();
+
             let result;
-            if (criteria.getLimit() > 0 && criteria.getOffset() > 0) {
-                result = await db.select().from(this.drizzleEntity).where(and(...filters)).groupBy(this.drizzleEntity[orderBy]).limit(criteria.getLimit()).offset(criteria.getOffset());
+
+            if (relations && this.drizzleQueryEntity) {
+                // Usamos el query builder de Drizzle que soporta `with`
+                result = await db.query[this.drizzleQueryEntity].findMany({
+                    where: and(...filters),
+                    with: relations,
+                    orderBy: (row: any) => row[orderBy],
+                    limit: criteria.getLimit() || undefined,
+                    offset: criteria.getOffset() || undefined,
+                });
             } else {
-                result = await db.select().from(this.drizzleEntity).where(and(...filters)).groupBy(this.drizzleEntity[orderBy]);
+                // Versión "plana" sin relaciones
+                if (criteria.getLimit() > 0 && criteria.getOffset() > 0) {
+                    result = await db
+                        .select()
+                        .from(this.drizzleEntity)
+                        .where(and(...filters))
+                        .groupBy(this.drizzleEntity[orderBy])
+                        .limit(criteria.getLimit())
+                        .offset(criteria.getOffset());
+                } else {
+                    result = await db
+                        .select()
+                        .from(this.drizzleEntity)
+                        .where(and(...filters))
+                        .groupBy(this.drizzleEntity[orderBy]);
+                }
             }
 
-            return Result.Ok(result.map(row => this.toEntity(row)));
+            return Result.Ok(result.map((row: any) => this.toEntity(row)));
 
         } catch (error) {
             console.error("Error matching criteria:", error);
@@ -71,6 +97,9 @@ export abstract class DrizzleCriteriaRepository<T> implements ICriteriaRepositor
         }
     }
 
-    abstract toEntity(prismaEntity: any): T;
+    abstract toEntity(drizzleEntity: any): T;
     abstract getDefaultOrderBy(): string;
+
+    // 🔹 Nuevo método abstracto para relaciones
+    abstract getRelations(): any;
 }

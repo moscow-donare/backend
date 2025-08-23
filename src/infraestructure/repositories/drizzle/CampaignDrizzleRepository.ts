@@ -1,7 +1,7 @@
 import type { ICampaignRepository } from "$core/campaigns/domain/ports/ICampaignRepository";
 import type { Campaign } from "src/core/campaigns/domain/campaign";
 import type { User } from "src/core/users/domain/user";
-import { Campaign as CampaignDomain, CampaignStatus } from "src/core/campaigns/domain/campaign";
+import { Campaign as CampaignDomain } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -17,7 +17,7 @@ type EditableCampaignFields = Pick<
     'name' | 'description' | 'category' | 'goal' | 'endDate' | 'photo'
 >;
 
-export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign> implements ICampaignRepository {
+export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign, 'campaigns'> implements ICampaignRepository {
     constructor() {
         super(campaigns);
     }
@@ -127,7 +127,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    private mapToDomain(row: any, creator: User, statusChanges: any[]): Campaign {
+    private mapToDomain(row: any, creator: User, statusChanges: any[] = []): Campaign {
         return CampaignDomain.createWithId({
             id: row.id,
             name: row.name,
@@ -149,10 +149,16 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
     }
 
     toEntity(drizzleEntity: any): Campaign {
-        return this.mapToDomain(drizzleEntity, drizzleEntity.creator as User);
+        return this.mapToDomain(drizzleEntity, drizzleEntity.creator as User, drizzleEntity.state_changes || []);
     }
 
     getDefaultOrderBy(): string {
         return "id";
+    }
+
+    getRelations() {
+        return {
+            state_changes: true,
+        };
     }
 }
