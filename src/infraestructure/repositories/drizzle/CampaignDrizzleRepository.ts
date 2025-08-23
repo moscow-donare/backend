@@ -6,6 +6,7 @@ import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
+import { StateChange } from "$core/campaigns/domain/stateChange";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
@@ -41,15 +42,18 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
+            let statusChanges: any[] = []
+
             campaign.statusChange.forEach(async (stateChange) => {
-                await db.insert(state_changes).values({
+                const statusChange = await db.insert(state_changes).values({
                     campaign_id: created.id,
                     status: stateChange.getState(),
                     reason: stateChange.getReason()
-                });
+                }).returning();
+                statusChanges.push(statusChange);
             });
 
-            return Result.Ok(this.mapToDomain(created, campaign.creator));
+            return Result.Ok(this.mapToDomain(created, campaign.creator, statusChanges));
         } catch (error) {
             console.error("Error saving campaign:", error);
             return Result.Err({
@@ -123,7 +127,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    private mapToDomain(row: any, creator: User): Campaign {
+    private mapToDomain(row: any, creator: User, statusChanges: any[]): Campaign {
         return CampaignDomain.createWithId({
             id: row.id,
             name: row.name,
@@ -133,7 +137,12 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             endDate: row.end_date,
             photo: row.photo,
             creator,
-            status: row.status ?? CampaignStatus.IN_REVIEW,
+            statesChange: statusChanges.map(statusChange => (StateChange.createWithId(
+                statusChange.id,
+                statusChange.status,
+                new Date(statusChange.created_at),
+                statusChange.reason
+            ))),
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         });
