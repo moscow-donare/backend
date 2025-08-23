@@ -1,4 +1,4 @@
-import { Campaign, CampaignCategory, CampaignStatus } from "../domain/campaign";
+import { Campaign } from "../domain/campaign";
 import type { User } from "../../users/domain/user";
 import type { ContainerCampaignRepository } from "../domain/ports/ICampaignRepository";
 
@@ -29,17 +29,5 @@ export async function getCampaign(
         });
     }
 
-    return Result.Ok({
-        id: campaign.id,
-        name: campaign.name,
-        description: campaign.description,
-        category: campaign.category,
-        goal: campaign.goal,
-        endDate: campaign.endDate,
-        photo: campaign.photo,
-        creator: campaign.creator,
-        status: campaign.status,
-        createdAt: campaign.createdAt,
-        updatedAt: campaign.updatedAt,
-    });
+    return Result.Ok(campaign);
 }

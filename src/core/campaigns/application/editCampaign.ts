@@ -1,8 +1,8 @@
 import type { User } from "$core/users/domain/user";
-import listByCriteria from "$shared/core/application/listByCriteria";
 import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
-import { Campaign, CampaignStatus } from "../domain/campaign";
+import { Campaign } from "../domain/campaign";
+import { CampaignStatus } from "../domain/enums";
 import type { ContainerCampaignRepository } from "../domain/ports/ICampaignRepository";
 
 export type EditCampaignInput = {
@@ -44,12 +44,12 @@ export async function editCampaign(
         });
     }
 
-    if (campaign?.status !== CampaignStatus.IN_REVIEW && campaign?.status !== CampaignStatus.ACTIVE) {
-        return Result.Err({
-            code: "CAMPAIGN_CANNOT_BE_EDITED",
-            message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada",
-        });
-    }
+    // if (campaign?.status !== CampaignStatus.IN_REVIEW && campaign?.status !== CampaignStatus.ACTIVE) {
+    //     return Result.Err({
+    //         code: "CAMPAIGN_CANNOT_BE_EDITED",
+    //         message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada",
+    //     });
+    // }
 
     const updates: Partial<Campaign> = {};
     Object.entries(input).forEach(([key, value]) => {
