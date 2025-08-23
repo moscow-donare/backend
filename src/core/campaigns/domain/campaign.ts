@@ -1,5 +1,7 @@
 import type { User } from "$core/users/domain/user";
 import type { CreateCampaignInput } from "../application/createCampaign";
+import { CampaignCategory, CampaignStatus } from "./enums";
+import { StateChange } from "./stateChange";
 
 export class Campaign {
     private constructor(
@@ -11,11 +13,10 @@ export class Campaign {
         public endDate: Date,
         public photo: string,
         public creator: User,
-        public status: CampaignStatus = CampaignStatus.IN_REVIEW,
+        public statusChange: StateChange[],
         public readonly createdAt: Date,
         public readonly updatedAt: Date
     ) { }
-
     static create(props: CreateCampaignInput): Campaign {
         return new Campaign(
             null,
@@ -26,7 +27,7 @@ export class Campaign {
             props.endDate,
             props.photo,
             props.creator,
-            CampaignStatus.IN_REVIEW,
+            [StateChange.create(CampaignStatus.IN_REVIEW, "Campaign created")],
             new Date(),
             new Date()
         );
@@ -41,7 +42,7 @@ export class Campaign {
         endDate: Date;
         photo: string;
         creator: User;
-        status?: CampaignStatus;
+        statesChange: StateChange[];
         createdAt?: Date | null;
         updatedAt?: Date | null;
     }): Campaign {
@@ -54,25 +55,9 @@ export class Campaign {
             props.endDate,
             props.photo,
             props.creator,
-            props.status ?? CampaignStatus.IN_REVIEW,
+            props.statesChange,
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );
     }
-}
-
-export enum CampaignStatus {
-    IN_REVIEW = 0,
-    PENDING_CHANGES = 1,
-    ACTIVE = 2,
-    CANCELLED = 3,
-    COMPLETED = 4
-}
-
-export enum CampaignCategory {
-    Health = 0,
-    Education = 1,
-    Emergency = 2,
-    Raffle = 3,
-    Project = 4,
 }

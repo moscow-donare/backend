@@ -3,7 +3,7 @@ import type { Campaign } from "src/core/campaigns/domain/campaign";
 import type { User } from "src/core/users/domain/user";
 import { Campaign as CampaignDomain, CampaignStatus } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
-import { campaigns } from "src/infraestructure/drizzle/schema";
+import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 
@@ -30,8 +30,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 goal: campaign.goal,
                 end_date: campaign.endDate,
                 photo: campaign.photo,
-                creator_id: campaign.creator.id as number,
-                status: campaign.status,
+                creator_id: campaign.creator.id as number
             }).returning();
             const created = result?.[0];
 
@@ -41,6 +40,14 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                     message: "No se pudo crear la campaña",
                 });
             }
+
+            campaign.statusChange.forEach(async (stateChange) => {
+                await db.insert(state_changes).values({
+                    campaign_id: created.id,
+                    status: stateChange.getState(),
+                    reason: stateChange.getReason()
+                });
+            });
 
             return Result.Ok(this.mapToDomain(created, campaign.creator));
         } catch (error) {

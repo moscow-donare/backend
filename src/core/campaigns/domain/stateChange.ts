@@ -1,0 +1,49 @@
+import type { CampaignStatus } from "./enums";
+
+export class StateChange {
+    private constructor(
+        private id: number | null,
+        private state: CampaignStatus,
+        private createdAt: Date,
+        private reason: string
+    ) { }
+
+    static create(state: CampaignStatus, reason: string): StateChange {
+        return new StateChange(
+            null,
+            state,
+            new Date(),
+            reason
+        );
+    }
+
+    static createWithId(
+        id: number,
+        state: CampaignStatus,
+        createdAt: Date,
+        reason: string
+    ): StateChange {
+        return new StateChange(
+            id,
+            state,
+            createdAt,
+            reason
+        );
+    }
+
+    getId(): number | null {
+        return this.id;
+    }
+
+    getState(): CampaignStatus {
+        return this.state;
+    }
+
+    getCreatedAt(): Date {
+        return this.createdAt;
+    }
+
+    getReason(): string {
+        return this.reason;
+    }
+}
