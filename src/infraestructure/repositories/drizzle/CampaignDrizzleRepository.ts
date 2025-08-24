@@ -19,7 +19,7 @@ type EditableCampaignFields = Pick<
 
 export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign, 'campaigns'> implements ICampaignRepository {
     constructor() {
-        super(campaigns);
+        super(campaigns, 'campaigns');
     }
 
     async save(campaign: Campaign): AsyncResult<Campaign> {
@@ -49,17 +49,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                     reason: stateChange.getReason()
                 }).returning();
             }));
-            console.log('status changes', statusChanges)
-            // campaign.statusChange.forEach(async (stateChange) => {
-            //     const statusChange = await db.insert(state_changes).values({
-            //         campaign_id: created.id,
-            //         status: stateChange.getState(),
-            //         reason: stateChange.getReason()
-            //     }).returning();
-            //     console.log('status change', statusChange)
-            //     statusChanges.push(statusChange);
-            // });
-            // console.log('array de status change', statusChanges)
+
             return Result.Ok(this.mapToDomain(created, campaign.creator, statusChanges));
         } catch (error) {
             console.error("Error saving campaign:", error);
@@ -165,7 +155,9 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
 
     getRelations() {
         return {
-            state_changes: true,
+            state_changes: {
+                orderBy: (sc: { created_at: any; }, { desc }: any) => [desc(sc.created_at)],
+            }
         };
     }
 }

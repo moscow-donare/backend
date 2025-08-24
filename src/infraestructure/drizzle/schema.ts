@@ -22,17 +22,17 @@ export const campaigns = pgTable("campaigns", {
   updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+export const campaignsRelations = relations(campaigns, ({ many }) => ({
+  state_changes: many(state_changes),
+}));
+
 export const state_changes = pgTable("state_changes", {
   id: serial("id").primaryKey(),
-  campaign_id: integer("campaign_id").notNull().references(() => campaigns.id),
+  campaign_id: integer("campaign_id").notNull(),
   status: integer("status").notNull(),
   reason: text("reason").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
-
-export const campaignsRelations = relations(campaigns, ({ many }) => ({
-  state_changes: many(state_changes),
-}));
 
 export const stateChangesRelations = relations(state_changes, ({ one }) => ({
   campaign: one(campaigns, {
@@ -41,4 +41,4 @@ export const stateChangesRelations = relations(state_changes, ({ one }) => ({
   }),
 }));
 
-export const schema = { users, campaigns, state_changes };
+export const schema = { users, campaigns, state_changes, stateChangesRelations, campaignsRelations };

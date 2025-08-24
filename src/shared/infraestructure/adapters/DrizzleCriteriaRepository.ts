@@ -6,7 +6,7 @@ import type { Filter } from "$shared/core/domain/criteria/Filter";
 import type { any } from "zod/v4";
 
 export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.query> implements ICriteriaRepository<T> {
-    constructor(private drizzleEntity: any, private drizzleQueryEntity?: Q) { }
+    constructor(private drizzleEntity: any, private drizzleQueryEntity: Q) { }
 
     async matching(criteria: Criteria): AsyncResult<T[]> {
         try {
@@ -16,33 +16,14 @@ export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.que
 
             let result;
 
-            if (relations && this.drizzleQueryEntity) {
-                // Usamos el query builder de Drizzle que soporta `with`
-                result = await db.query[this.drizzleQueryEntity].findMany({
-                    where: and(...filters),
-                    with: relations,
-                    orderBy: (row: any) => row[orderBy],
-                    limit: criteria.getLimit() || undefined,
-                    offset: criteria.getOffset() || undefined,
-                });
-            } else {
-                // Versión "plana" sin relaciones
-                if (criteria.getLimit() > 0 && criteria.getOffset() > 0) {
-                    result = await db
-                        .select()
-                        .from(this.drizzleEntity)
-                        .where(and(...filters))
-                        .groupBy(this.drizzleEntity[orderBy])
-                        .limit(criteria.getLimit())
-                        .offset(criteria.getOffset());
-                } else {
-                    result = await db
-                        .select()
-                        .from(this.drizzleEntity)
-                        .where(and(...filters))
-                        .groupBy(this.drizzleEntity[orderBy]);
-                }
-            }
+            // Usamos el query builder de Drizzle que soporta `with`
+            result = await db.query[this.drizzleQueryEntity].findMany({
+                where: and(...filters),
+                with: relations ?? undefined,
+                orderBy: (row: any) => row[orderBy],
+                limit: criteria.getLimit() != -1 ? criteria.getLimit() : undefined,
+                offset: criteria.getOffset() != -1 ? criteria.getOffset() : undefined,
+            });
 
             return Result.Ok(result.map((row: any) => this.toEntity(row)));
 
@@ -99,7 +80,5 @@ export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.que
 
     abstract toEntity(drizzleEntity: any): T;
     abstract getDefaultOrderBy(): string;
-
-    // 🔹 Nuevo método abstracto para relaciones
     abstract getRelations(): any;
 }

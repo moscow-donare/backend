@@ -23,10 +23,8 @@ export async function createCampaign(
     const filterbyId: Filter = new Filter('creator_id', input.creator.id);
     criteria.addFilter(filterbyId);
     const userCampaignsResult = await repositories.campaignRepository.matching(criteria);
-    console.log(userCampaignsResult)
     if (userCampaignsResult.IsOk) {
         const campaigns = userCampaignsResult.Unwrap();
-        console.log(campaigns)
         if (campaigns.some(c => c.statusChange[0]?.getState() === CampaignStatus.IN_REVIEW)) {
             return Result.Err({
                 code: "USER_CAMPAIGN_IN_REVIEW",
