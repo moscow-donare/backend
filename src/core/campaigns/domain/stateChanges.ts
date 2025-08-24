@@ -1,6 +1,6 @@
 import type { CampaignStatus } from "./enums";
 
-export class StateChange {
+export class StateChanges {
     private constructor(
         private id: number | null,
         private state: CampaignStatus,
@@ -8,8 +8,8 @@ export class StateChange {
         private reason: string
     ) { }
 
-    static create(state: CampaignStatus, reason: string): StateChange {
-        return new StateChange(
+    static create(state: CampaignStatus, reason: string): StateChanges {
+        return new StateChanges(
             null,
             state,
             new Date(),
@@ -22,8 +22,9 @@ export class StateChange {
         state: CampaignStatus,
         createdAt: Date,
         reason: string
-    ): StateChange {
-        return new StateChange(
+    ): StateChanges {
+        console.log("Creating StateChanges", { id, state, createdAt, reason });
+        return new StateChanges(
             id,
             state,
             createdAt,

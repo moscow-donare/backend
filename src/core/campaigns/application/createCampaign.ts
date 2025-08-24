@@ -25,13 +25,13 @@ export async function createCampaign(
     const userCampaignsResult = await repositories.campaignRepository.matching(criteria);
     if (userCampaignsResult.IsOk) {
         const campaigns = userCampaignsResult.Unwrap();
-        if (campaigns.some(c => c.statusChange[0]?.getState() === CampaignStatus.IN_REVIEW)) {
+        if (campaigns.some(c => c.stateChanges[0]?.getState() === CampaignStatus.IN_REVIEW)) {
             return Result.Err({
                 code: "USER_CAMPAIGN_IN_REVIEW",
                 message: "El usuario ya tiene una campaña en revisión",
             });
         }
-        if (campaigns.some(c => c.statusChange[0]?.getState() === CampaignStatus.ACTIVE)) {
+        if (campaigns.some(c => c.stateChanges[0]?.getState() === CampaignStatus.ACTIVE)) {
             return Result.Err({
                 code: "USER_ACTIVE_CAMPAIGN_EXISTS",
                 message: "El usuario ya tiene una campaña activa",

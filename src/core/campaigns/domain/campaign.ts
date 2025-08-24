@@ -1,7 +1,7 @@
 import type { User } from "$core/users/domain/user";
 import type { CreateCampaignInput } from "../application/createCampaign";
 import { CampaignCategory, CampaignStatus } from "./enums";
-import { StateChange } from "./stateChange";
+import { StateChanges } from "./stateChanges";
 
 export class Campaign {
     private constructor(
@@ -13,7 +13,7 @@ export class Campaign {
         public endDate: Date,
         public photo: string,
         public creator: User,
-        public statusChange: StateChange[],
+        public stateChanges: StateChanges[],
         public readonly createdAt: Date,
         public readonly updatedAt: Date
     ) { }
@@ -27,7 +27,7 @@ export class Campaign {
             props.endDate,
             props.photo,
             props.creator,
-            [StateChange.create(CampaignStatus.IN_REVIEW, "Campaign created")],
+            [StateChanges.create(CampaignStatus.IN_REVIEW, "Campaign created")],
             new Date(),
             new Date()
         );
@@ -42,7 +42,7 @@ export class Campaign {
         endDate: Date;
         photo: string;
         creator: User;
-        statesChange: StateChange[];
+        stateChanges: StateChanges[];
         createdAt?: Date | null;
         updatedAt?: Date | null;
     }): Campaign {
@@ -55,7 +55,7 @@ export class Campaign {
             props.endDate,
             props.photo,
             props.creator,
-            props.statesChange,
+            props.stateChanges,
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );

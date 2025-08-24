@@ -3,7 +3,6 @@ import type { ICriteriaRepository } from "../ports/ICriteriaRepository";
 import { db } from "src/infraestructure/drizzle/db";
 import { and, eq, gt, gte, inArray, isNull, like, lt, lte, not, notInArray, type SQL } from "drizzle-orm";
 import type { Filter } from "$shared/core/domain/criteria/Filter";
-import type { any } from "zod/v4";
 
 export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.query> implements ICriteriaRepository<T> {
     constructor(private drizzleEntity: any, private drizzleQueryEntity: Q) { }

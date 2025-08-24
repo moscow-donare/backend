@@ -6,7 +6,7 @@ import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
-import { StateChange } from "$core/campaigns/domain/stateChange";
+import { StateChanges } from "$core/campaigns/domain/stateChanges";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
@@ -42,12 +42,13 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            const statusChanges = await Promise.all(campaign.statusChange.map(async (stateChange) => {
-                return await db.insert(state_changes).values({
+            const statusChanges = await Promise.all(campaign.stateChanges.map(async (stateChange) => {
+                const result = await db.insert(state_changes).values({
                     campaign_id: created.id,
                     status: stateChange.getState(),
                     reason: stateChange.getReason()
                 }).returning();
+                return result[0];
             }));
 
             return Result.Ok(this.mapToDomain(created, campaign.creator, statusChanges));
@@ -124,7 +125,15 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    private mapToDomain(row: any, creator: User, statusChanges: any[] = []): Campaign {
+    private mapToDomain(row: any, creator: User, stateChanges: any[] = []): Campaign {
+        const mappedStateChanges: StateChanges[] = stateChanges.map((stateChange) => {
+            return StateChanges.createWithId(
+                stateChange.id,
+                stateChange.status,
+                new Date(stateChange.created_at),
+                stateChange.reason
+            )
+        });
         return CampaignDomain.createWithId({
             id: row.id,
             name: row.name,
@@ -134,12 +143,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             endDate: row.end_date,
             photo: row.photo,
             creator,
-            statesChange: statusChanges.map(statusChange => (StateChange.createWithId(
-                statusChange.id,
-                statusChange.status,
-                new Date(statusChange.created_at),
-                statusChange.reason
-            ))),
+            stateChanges: mappedStateChanges,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         });
