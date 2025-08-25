@@ -7,6 +7,7 @@ import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
 import { desc, eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 import { StateChanges } from "$core/campaigns/domain/stateChanges";
+import { CampaignStatus } from "$core/campaigns/domain/enums";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
@@ -108,11 +109,17 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         try {
             const result = await db.update(campaigns).set({ ...updates, end_date: updates.endDate, blockchain_id: updates.blockchainId }).where(eq(campaigns.id, id)).returning();
 
-            const stateChanges = await db
-                .select()
-                .from(state_changes)
-                .where(eq(state_changes.campaign_id, id))
-                .orderBy(desc(state_changes.created_at));
+            const stateChanges = await this.getStateChanges(id);
+
+            let allStateChanges = stateChanges;
+            const lastStateChange = stateChanges[0];
+            if (!lastStateChange || lastStateChange.status !== CampaignStatus.PENDING_CHANGES) {
+                const pendingChangesState = await db.insert(state_changes).values({
+                    campaign_id: id,
+                    status: CampaignStatus.PENDING_CHANGES,
+                    reason: "Edición de campaña"
+                }).returning();
+            }
 
             const updated = result?.[0];
             if (!updated) {
@@ -122,7 +129,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User, stateChanges));
+            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User, await this.getStateChanges(id)));
         } catch (error) {
             return Result.Err({
                 code: CODE_DB_CAMPAIGN_EDIT_FAILED,
@@ -175,5 +182,13 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 fk: "creator_id",
             }
         };
+    }
+
+    async getStateChanges(id: number) {
+        return await db
+            .select()
+            .from(state_changes)
+            .where(eq(state_changes.campaign_id, id))
+            .orderBy(desc(state_changes.created_at));
     }
 }
