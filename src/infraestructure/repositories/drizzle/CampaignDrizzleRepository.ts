@@ -4,7 +4,7 @@ import type { User } from "src/core/users/domain/user";
 import { Campaign as CampaignDomain } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 import { StateChanges } from "$core/campaigns/domain/stateChanges";
 
@@ -14,7 +14,7 @@ const CODE_DB_CAMPAIGN_EDIT_FAILED = "DB_ERROR::CAMPAIGN_EDIT_FAILED";
 
 type EditableCampaignFields = Pick<
     Campaign,
-    'name' | 'description' | 'category' | 'goal' | 'endDate' | 'photo'
+    'name' | 'description' | 'category' | 'goal' | 'endDate' | 'photo' | 'blockchainId'
 >;
 
 export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign, 'campaigns'> implements ICampaignRepository {
@@ -31,7 +31,8 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 goal: campaign.goal,
                 end_date: campaign.endDate,
                 photo: campaign.photo,
-                creator_id: campaign.creator.id as number
+                creator_id: campaign.creator.id as number,
+                blockchain_id: campaign.blockchainId ?? undefined
             }).returning();
             const created = result?.[0];
 
@@ -105,7 +106,13 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
 
     async edit(id: number, updates: Partial<EditableCampaignFields>): AsyncResult<Campaign> {
         try {
-            const result = await db.update(campaigns).set(updates).where(eq(campaigns.id, id)).returning();
+            const result = await db.update(campaigns).set({ ...updates, end_date: updates.endDate, blockchain_id: updates.blockchainId }).where(eq(campaigns.id, id)).returning();
+
+            const stateChanges = await db
+                .select()
+                .from(state_changes)
+                .where(eq(state_changes.campaign_id, id))
+                .orderBy(desc(state_changes.created_at));
 
             const updated = result?.[0];
             if (!updated) {
@@ -115,7 +122,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User));
+            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User, stateChanges));
         } catch (error) {
             return Result.Err({
                 code: CODE_DB_CAMPAIGN_EDIT_FAILED,
@@ -144,6 +151,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             photo: row.photo,
             creator,
             stateChanges: mappedStateChanges,
+            blockchainId: row.blockchain_id,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         });
@@ -161,6 +169,10 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         return {
             state_changes: {
                 orderBy: (sc: { created_at: any; }, { desc }: any) => [desc(sc.created_at)],
+            },
+            creator: {
+                ref: "users",
+                fk: "creator_id",
             }
         };
     }

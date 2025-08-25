@@ -12,6 +12,7 @@ export type CreateCampaignInput = {
     goal: number;
     endDate: Date;
     photo: string;
+    blockchainId?: string;
     creator: User;
 };
 

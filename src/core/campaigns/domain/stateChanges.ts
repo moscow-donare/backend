@@ -23,7 +23,6 @@ export class StateChanges {
         createdAt: Date,
         reason: string
     ): StateChanges {
-        console.log("Creating StateChanges", { id, state, createdAt, reason });
         return new StateChanges(
             id,
             state,

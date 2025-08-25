@@ -14,6 +14,7 @@ export class Campaign {
         public photo: string,
         public creator: User,
         public stateChanges: StateChanges[],
+        public blockchainId: string | null = null,
         public readonly createdAt: Date,
         public readonly updatedAt: Date
     ) { }
@@ -28,6 +29,7 @@ export class Campaign {
             props.photo,
             props.creator,
             [StateChanges.create(CampaignStatus.IN_REVIEW, "Campaign created")],
+            props.blockchainId ?? null,
             new Date(),
             new Date()
         );
@@ -43,6 +45,7 @@ export class Campaign {
         photo: string;
         creator: User;
         stateChanges: StateChanges[];
+        blockchainId: string | null;
         createdAt?: Date | null;
         updatedAt?: Date | null;
     }): Campaign {
@@ -56,6 +59,7 @@ export class Campaign {
             props.photo,
             props.creator,
             props.stateChanges,
+            props.blockchainId,
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );

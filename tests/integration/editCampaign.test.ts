@@ -17,6 +17,7 @@ const baseCampaign = {
     goal: 500,
     end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     photo: "ipfs://photoBase",
+    blockchain_id: null,
 };
 
 // Nota: de acuerdo a tus tests previos, los estados parecen:
@@ -60,7 +61,6 @@ describe("PATCH /campaigns/edit/:id - edición de campaña", async () => {
                 .values({
                     ...baseCampaign,
                     creator_id: userSaved!.id,
-                    status: STATUS_IN_REVIEW,
                 })
                 .returning();
 
@@ -190,7 +190,6 @@ describe("PATCH /campaigns/edit/:id - edición de campaña", async () => {
                 .values({
                     ...baseCampaign,
                     creator_id: userSaved!.id,
-                    status: STATUS_ACTIVE,
                 })
                 .returning();
 
@@ -283,7 +282,6 @@ describe("PATCH /campaigns/edit/:id - edición de campaña", async () => {
                 .values({
                     ...baseCampaign,
                     creator_id: userSaved!.id,
-                    status: STATUS_IN_REVIEW,
                 })
                 .returning();
 
@@ -348,7 +346,6 @@ describe("PATCH /campaigns/edit/:id - edición de campaña", async () => {
                 .values({
                     ...baseCampaign,
                     creator_id: userSaved!.id,
-                    status: STATUS_NOT_EDITABLE, // p.ej. CLOSED/FINISHED/REJECTED
                 })
                 .returning();
 

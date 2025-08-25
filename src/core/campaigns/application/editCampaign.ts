@@ -1,4 +1,5 @@
 import type { User } from "$core/users/domain/user";
+import listByCriteria from "$shared/core/application/listByCriteria";
 import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
 import { Campaign } from "../domain/campaign";
@@ -14,6 +15,7 @@ export type EditCampaignInput = {
     goal?: number;
     endDate?: Date;
     photo?: string;
+    blockchainId?: string | null;
 };
 
 export async function editCampaign(
@@ -24,9 +26,7 @@ export async function editCampaign(
     const filterbyId: Filter = new Filter('id', input.campaignId);
     criteria.addFilter(filterbyId);
 
-    // const campaignResult = await listByCriteria(repositories.campaignRepository, criteria);
-    // console.log('criteria encontrado', campaignResult);
-    const campaignResult = await repositories.campaignRepository.findById(input.campaignId);
+    const campaignResult = await listByCriteria(repositories.campaignRepository, criteria);
 
     if (campaignResult.IsErr || !campaignResult.Unwrap()) {
         return Result.Err({
@@ -35,7 +35,7 @@ export async function editCampaign(
         });
     }
 
-    const campaign = campaignResult.Unwrap();
+    const campaign = campaignResult.Unwrap()[0];
 
     if (campaign?.creator.id !== input.creator.id) {
         return Result.Err({
@@ -44,12 +44,12 @@ export async function editCampaign(
         });
     }
 
-    // if (campaign?.status !== CampaignStatus.IN_REVIEW && campaign?.status !== CampaignStatus.ACTIVE) {
-    //     return Result.Err({
-    //         code: "CAMPAIGN_CANNOT_BE_EDITED",
-    //         message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada",
-    //     });
-    // }
+    if (campaign?.stateChanges[0]?.getState() !== CampaignStatus.IN_REVIEW && campaign?.stateChanges[0]?.getState() !== CampaignStatus.ACTIVE) {
+        return Result.Err({
+            code: "CAMPAIGN_CANNOT_BE_EDITED",
+            message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada",
+        });
+    }
 
     const updates: Partial<Campaign> = {};
     Object.entries(input).forEach(([key, value]) => {

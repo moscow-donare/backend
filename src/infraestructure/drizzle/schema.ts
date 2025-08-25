@@ -18,12 +18,17 @@ export const campaigns = pgTable("campaigns", {
   end_date: timestamp("end_date", { withTimezone: true }).notNull(),
   photo: varchar("photo", { length: 255 }).notNull(),
   creator_id: integer("creator_id").notNull().references(() => users.id),
+  blockchain_id: varchar("blockchain_id", { length: 255 }),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
-export const campaignsRelations = relations(campaigns, ({ many }) => ({
+export const campaignsRelations = relations(campaigns, ({ many, one }) => ({
   state_changes: many(state_changes),
+  creator: one(users, {
+    fields: [campaigns.creator_id],
+    references: [users.id],
+  })
 }));
 
 export const state_changes = pgTable("state_changes", {
