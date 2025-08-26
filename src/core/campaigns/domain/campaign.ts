@@ -5,7 +5,7 @@ import { StateChanges } from "./stateChanges";
 
 export class Campaign {
     private constructor(
-        public readonly id: number | null,
+        public id: number | null,
         public name: string,
         public description: string,
         public category: CampaignCategory,
@@ -15,8 +15,8 @@ export class Campaign {
         public creator: User,
         public stateChanges: StateChanges[],
         public blockchainId: string | null = null,
-        public readonly createdAt: Date,
-        public readonly updatedAt: Date
+        public createdAt: Date,
+        public updatedAt: Date
     ) { }
     static create(props: CreateCampaignInput): Campaign {
         return new Campaign(

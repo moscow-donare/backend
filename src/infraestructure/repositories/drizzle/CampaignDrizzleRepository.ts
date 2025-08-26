@@ -105,20 +105,40 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    async edit(id: number, updates: Partial<EditableCampaignFields>): AsyncResult<Campaign> {
+    async edit(campaign: Campaign): AsyncResult<Campaign> {
         try {
-            const result = await db.update(campaigns).set({ ...updates, end_date: updates.endDate, blockchain_id: updates.blockchainId }).where(eq(campaigns.id, id)).returning();
+            if (!campaign.id) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_EDIT_FAILED,
+                    message: "El id de la campaña es requerido para editar",
+                });
+            }
+            const result = await db.update(campaigns).set({
+                name: campaign.name,
+                description: campaign.description,
+                category: campaign.category,
+                goal: campaign.goal,
+                end_date: campaign.endDate,
+                photo: campaign.photo,
+                blockchain_id: campaign.blockchainId ?? null,
+                updated_at: new Date()
+            }).where(eq(campaigns.id, campaign.id)).returning();
 
-            const stateChanges = await this.getStateChanges(id);
+            const stateChanges = campaign.stateChanges;
+            const lastStateChange = stateChanges[0]?.getState() ?? null;
 
-            let allStateChanges = stateChanges;
-            const lastStateChange = stateChanges[0];
-            if (!lastStateChange || lastStateChange.status !== CampaignStatus.PENDING_CHANGES) {
-                const pendingChangesState = await db.insert(state_changes).values({
-                    campaign_id: id,
-                    status: CampaignStatus.PENDING_CHANGES,
+            if (lastStateChange && (lastStateChange == CampaignStatus.PENDING_CHANGES || lastStateChange == CampaignStatus.ACTIVE)) {
+                const inReviewChangeState = await db.insert(state_changes).values({
+                    campaign_id: campaign.id!,
+                    status: CampaignStatus.IN_REVIEW,
                     reason: "Edición de campaña"
                 }).returning();
+                stateChanges.unshift(StateChanges.createWithId(
+                    inReviewChangeState[0]!.id,
+                    inReviewChangeState[0]!.status,
+                    inReviewChangeState[0]!.created_at ? new Date(inReviewChangeState[0]!.created_at) : new Date(),
+                    inReviewChangeState[0]!.reason
+                ));
             }
 
             const updated = result?.[0];
@@ -129,7 +149,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User, await this.getStateChanges(id)));
+            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User, stateChanges));
         } catch (error) {
             return Result.Err({
                 code: CODE_DB_CAMPAIGN_EDIT_FAILED,
@@ -144,7 +164,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             return StateChanges.createWithId(
                 stateChange.id,
                 stateChange.status,
-                new Date(stateChange.created_at),
+                new Date(stateChange.created_at ?? stateChange.createdAt ?? new Date()),
                 stateChange.reason
             )
         });
@@ -182,13 +202,5 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 fk: "creator_id",
             }
         };
-    }
-
-    async getStateChanges(id: number) {
-        return await db
-            .select()
-            .from(state_changes)
-            .where(eq(state_changes.campaign_id, id))
-            .orderBy(desc(state_changes.created_at));
     }
 }

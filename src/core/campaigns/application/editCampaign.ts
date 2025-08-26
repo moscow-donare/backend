@@ -18,54 +18,62 @@ export type EditCampaignInput = {
     blockchainId?: string | null;
 };
 
+type EditableFields = Omit<Campaign, "id" | "createdAt" | "updatedAt">;
+
+const POSSIBLE_EDIT_STATES = [
+    CampaignStatus.IN_REVIEW,
+    CampaignStatus.ACTIVE,
+    CampaignStatus.PENDING_CHANGES
+];
+
 export async function editCampaign(
     input: EditCampaignInput,
     repositories: ContainerCampaignRepository
 ): AsyncResult<Campaign> {
     const criteria: Criteria = new Criteria();
-    const filterbyId: Filter = new Filter('id', input.campaignId);
+    const filterbyId: Filter = new Filter("id", input.campaignId);
+    const creatorFilter: Filter = new Filter("creator_id", input.creator.id);
     criteria.addFilter(filterbyId);
+    criteria.addFilter(creatorFilter);
 
     const campaignResult = await listByCriteria(repositories.campaignRepository, criteria);
+    const campaign = campaignResult.Unwrap()[0] ?? null;
 
-    if (campaignResult.IsErr || !campaignResult.Unwrap()) {
+    if (campaignResult.IsErr || !campaign) {
         return Result.Err({
             code: "CAMPAIGN_NOT_FOUND",
-            message: "La campaña no fue encontrada",
+            message: "La campaña no fue encontrada"
         });
     }
-
-    const campaign = campaignResult.Unwrap()[0];
-
-    if (campaign?.creator.id !== input.creator.id) {
-        return Result.Err({
-            code: "CAMPAIGN_CREATOR_MISMATCH",
-            message: "El usuario no es el creador de la campaña",
-        });
-    }
-
-    if (campaign?.stateChanges[0]?.getState() !== CampaignStatus.IN_REVIEW && campaign?.stateChanges[0]?.getState() !== CampaignStatus.ACTIVE) {
+    const currentState = campaign.stateChanges[0]!.getState();
+    if (
+        !POSSIBLE_EDIT_STATES.includes(currentState)
+    ) {
         return Result.Err({
             code: "CAMPAIGN_CANNOT_BE_EDITED",
-            message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada",
+            message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada"
         });
     }
 
-    const updates: Partial<Campaign> = {};
+    const editableKeys: (keyof EditableFields)[] = [
+        "name",
+        "description",
+        "category",
+        "goal",
+        "endDate",
+        "photo"
+    ];
     Object.entries(input).forEach(([key, value]) => {
-        if (
-            ["name", "description", "category", "goal", "endDate", "photo"].includes(key) &&
-            value !== undefined
-        ) {
-            (updates as any)[key] = value;
+        if (editableKeys.includes(key as keyof EditableFields) && value !== undefined) {
+            (campaign as EditableFields)[key as keyof EditableFields] = value as never;
         }
     });
 
-    const updatedResult = await repositories.campaignRepository.edit(input.campaignId, updates);
+    const updatedResult = await repositories.campaignRepository.edit(campaign);
     if (updatedResult.IsErr || !updatedResult.Unwrap()) {
         return Result.Err({
             code: "CAMPAIGN_UPDATE_FAILED",
-            message: "No se pudo actualizar la campaña",
+            message: "No se pudo actualizar la campaña"
         });
     }
     const updated = updatedResult.Unwrap();
