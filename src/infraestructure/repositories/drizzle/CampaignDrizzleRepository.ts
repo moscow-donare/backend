@@ -4,7 +4,7 @@ import type { User } from "src/core/users/domain/user";
 import { Campaign as CampaignDomain } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 import { StateChanges } from "$core/campaigns/domain/stateChanges";
 import { CampaignStatus } from "$core/campaigns/domain/enums";
