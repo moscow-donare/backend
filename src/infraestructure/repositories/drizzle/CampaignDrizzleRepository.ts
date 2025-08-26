@@ -13,11 +13,6 @@ const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
 const CODE_DB_CAMPAIGN_EDIT_FAILED = "DB_ERROR::CAMPAIGN_EDIT_FAILED";
 
-type EditableCampaignFields = Pick<
-    Campaign,
-    'name' | 'description' | 'category' | 'goal' | 'endDate' | 'photo' | 'blockchainId'
->;
-
 export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaign, 'campaigns'> implements ICampaignRepository {
     constructor() {
         super(campaigns, 'campaigns');
