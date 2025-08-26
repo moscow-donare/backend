@@ -11,6 +11,7 @@ const inputSchema = z.object({
     category: z.number().int(),
     goal: z.number().int().positive(),
     endDate: z.coerce.date(),
+    blockchainId: z.string().min(1).optional(),
     photo: z.string().min(1),
 });
 

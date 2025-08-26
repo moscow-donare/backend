@@ -1,9 +1,11 @@
 import type { User } from "$core/users/domain/user";
 import type { CreateCampaignInput } from "../application/createCampaign";
+import { CampaignCategory, CampaignStatus } from "./enums";
+import { StateChanges } from "./stateChanges";
 
 export class Campaign {
     private constructor(
-        public readonly id: number | null,
+        public id: number | null,
         public name: string,
         public description: string,
         public category: CampaignCategory,
@@ -11,11 +13,11 @@ export class Campaign {
         public endDate: Date,
         public photo: string,
         public creator: User,
-        public status: CampaignStatus = CampaignStatus.IN_REVIEW,
-        public readonly createdAt: Date,
-        public readonly updatedAt: Date
+        public stateChanges: StateChanges[],
+        public blockchainId: string | null = null,
+        public createdAt: Date,
+        public updatedAt: Date
     ) { }
-
     static create(props: CreateCampaignInput): Campaign {
         return new Campaign(
             null,
@@ -26,7 +28,8 @@ export class Campaign {
             props.endDate,
             props.photo,
             props.creator,
-            CampaignStatus.IN_REVIEW,
+            [StateChanges.create(CampaignStatus.IN_REVIEW, "Campaign created")],
+            props.blockchainId ?? null,
             new Date(),
             new Date()
         );
@@ -41,7 +44,8 @@ export class Campaign {
         endDate: Date;
         photo: string;
         creator: User;
-        status?: CampaignStatus;
+        stateChanges: StateChanges[];
+        blockchainId: string | null;
         createdAt?: Date | null;
         updatedAt?: Date | null;
     }): Campaign {
@@ -54,25 +58,10 @@ export class Campaign {
             props.endDate,
             props.photo,
             props.creator,
-            props.status ?? CampaignStatus.IN_REVIEW,
+            props.stateChanges,
+            props.blockchainId,
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );
     }
-}
-
-export enum CampaignStatus {
-    IN_REVIEW = 0,
-    PENDING_CHANGES = 1,
-    ACTIVE = 2,
-    CANCELLED = 3,
-    COMPLETED = 4
-}
-
-export enum CampaignCategory {
-    Health = 0,
-    Education = 1,
-    Emergency = 2,
-    Raffle = 3,
-    Project = 4,
 }

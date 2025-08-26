@@ -1,6 +1,9 @@
-import { Campaign, CampaignCategory, CampaignStatus } from "../domain/campaign";
+import { Campaign } from "../domain/campaign";
 import type { User } from "../../users/domain/user";
 import type { ContainerCampaignRepository } from "../domain/ports/ICampaignRepository";
+import { CampaignStatus } from "../domain/enums";
+import { Criteria } from "$shared/core/domain/criteria/Criteria";
+import { Filter } from "$shared/core/domain/criteria/Filter";
 
 export type CreateCampaignInput = {
     name: string;
@@ -9,6 +12,7 @@ export type CreateCampaignInput = {
     goal: number;
     endDate: Date;
     photo: string;
+    blockchainId?: string;
     creator: User;
 };
 
@@ -16,16 +20,19 @@ export async function createCampaign(
     input: CreateCampaignInput,
     repositories: ContainerCampaignRepository
 ): AsyncResult<Campaign> {
-    const userCampaignsResult = await repositories.campaignRepository.findByUser(input.creator);
+    const criteria: Criteria = new Criteria();
+    const filterbyId: Filter = new Filter('creator_id', input.creator.id);
+    criteria.addFilter(filterbyId);
+    const userCampaignsResult = await repositories.campaignRepository.matching(criteria);
     if (userCampaignsResult.IsOk) {
         const campaigns = userCampaignsResult.Unwrap();
-        if (campaigns.some(c => c.status === CampaignStatus.IN_REVIEW)) {
+        if (campaigns.some(c => c.stateChanges[0]?.getState() === CampaignStatus.IN_REVIEW)) {
             return Result.Err({
                 code: "USER_CAMPAIGN_IN_REVIEW",
                 message: "El usuario ya tiene una campaña en revisión",
             });
         }
-        if (campaigns.some(c => c.status === CampaignStatus.ACTIVE)) {
+        if (campaigns.some(c => c.stateChanges[0]?.getState() === CampaignStatus.ACTIVE)) {
             return Result.Err({
                 code: "USER_ACTIVE_CAMPAIGN_EXISTS",
                 message: "El usuario ya tiene una campaña activa",
@@ -53,17 +60,5 @@ export async function createCampaign(
         });
     }
 
-    return Result.Ok({
-        id: created.id,
-        name: created.name,
-        description: created.description,
-        category: created.category,
-        goal: created.goal,
-        endDate: created.endDate,
-        photo: created.photo,
-        creator: created.creator,
-        status: created.status,
-        createdAt: created.createdAt,
-        updatedAt: created.updatedAt,
-    });
+    return Result.Ok(created);
 }
