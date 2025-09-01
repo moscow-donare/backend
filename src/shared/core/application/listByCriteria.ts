@@ -2,10 +2,10 @@ import type { ICriteriaRepository } from "$shared/infraestructure/ports/ICriteri
 import type { Criteria } from "../domain/criteria/Criteria";
 
 async function listByCriteria<T>(
-    repositoy: ICriteriaRepository<T>,
+    repository: ICriteriaRepository<T>,
     criteria: Criteria
 ) {
-    return await repositoy.matching(criteria);
+    return await repository.matching(criteria);
 }
 
 export default listByCriteria;
