@@ -150,7 +150,16 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            return Result.Ok(this.mapToDomain(updated, { id: updated.creator_id } as User, stateChanges));
+            // Fetch the full creator user from the database
+            const creatorRow = await db.select().from(users).where(eq(users.id, updated.creator_id)).limit(1);
+            if (!creatorRow || creatorRow.length === 0) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_EDIT_FAILED,
+                    message: "No se pudo encontrar el usuario creador de la campaña",
+                });
+            }
+            const creator = this.mapUserToDomain(creatorRow[0]);
+            return Result.Ok(this.mapToDomain(updated, creator, stateChanges));
         } catch (error) {
             return Result.Err({
                 code: CODE_DB_CAMPAIGN_EDIT_FAILED,
