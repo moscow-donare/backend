@@ -86,10 +86,16 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                     message: "No se encontró la campaña",
                 });
             }
-            // You may need to fetch the creator user if required, here assuming creator is not needed
-            // If you have a way to get the User by id, you should fetch it here
-            // For now, returning null for creator
-            return Result.Ok(this.mapToDomain(row, { id: row.creator_id } as User));
+            // Fetch the full creator user from the users table
+            const userResult = await db.select().from(users).where(eq(users.id, row.creator_id));
+            const creatorUser = userResult?.[0];
+            if (!creatorUser) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_FIND_FAILED,
+                    message: "No se encontró el usuario creador de la campaña",
+                });
+            }
+            return Result.Ok(this.mapToDomain(row, creatorUser));
         } catch (error) {
             console.error("Error finding campaign by id:", error);
             return Result.Err({
