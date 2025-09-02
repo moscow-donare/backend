@@ -1,13 +1,14 @@
 import type { ICampaignRepository } from "$core/campaigns/domain/ports/ICampaignRepository";
 import type { Campaign } from "src/core/campaigns/domain/campaign";
-import type { User } from "src/core/users/domain/user";
+import { User } from "src/core/users/domain/user";
 import { Campaign as CampaignDomain } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
-import { campaigns, state_changes } from "src/infraestructure/drizzle/schema";
+import { campaigns, state_changes, users } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 import { StateChanges } from "$core/campaigns/domain/stateChanges";
 import { CampaignStatus } from "$core/campaigns/domain/enums";
+import type { UserDB } from "$core/users/domain/types";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
 const CODE_DB_CAMPAIGN_FIND_FAILED = "DB_ERROR::CAMPAIGN_FIND_FAILED";
@@ -76,36 +77,6 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    async findById(id: number): AsyncResult<Campaign | null> {
-        try { //revisar codigo, no llegue a revisarlo (stefano)
-            const result = await db.select().from(campaigns).where(eq(campaigns.id, id));
-            const row = result?.[0];
-            if (!row) {
-                return Result.Err({
-                    code: CODE_DB_CAMPAIGN_FIND_FAILED,
-                    message: "No se encontró la campaña",
-                });
-            }
-            // Fetch the full creator user from the users table
-            const userResult = await db.select().from(users).where(eq(users.id, row.creator_id));
-            const creatorUser = userResult?.[0];
-            if (!creatorUser) {
-                return Result.Err({
-                    code: CODE_DB_CAMPAIGN_FIND_FAILED,
-                    message: "No se encontró el usuario creador de la campaña",
-                });
-            }
-            return Result.Ok(this.mapToDomain(row, creatorUser));
-        } catch (error) {
-            console.error("Error finding campaign by id:", error);
-            return Result.Err({
-                code: CODE_DB_CAMPAIGN_FIND_FAILED,
-                message: "Error al buscar campaña por id",
-                details: error,
-            });
-        }
-    }
-
     async edit(campaign: Campaign): AsyncResult<Campaign> {
         try {
             if (!campaign.id) {
@@ -158,7 +129,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                     message: "No se pudo encontrar el usuario creador de la campaña",
                 });
             }
-            const creator = this.mapUserToDomain(creatorRow[0]);
+            const creator = this.mapUserToDomain(creatorRow[0]! as UserDB);
             return Result.Ok(this.mapToDomain(updated, creator, stateChanges));
         } catch (error) {
             return Result.Err({
@@ -191,6 +162,17 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             blockchainId: row.blockchain_id,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
+        });
+    }
+
+    private mapUserToDomain(user: UserDB
+    ): User {
+        return User.createWithId({
+            id: user.id,
+            fullName: user.full_name,
+            email: user.email,
+            address: user.address,
+            createdAt: user.created_at,
         });
     }
 

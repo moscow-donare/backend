@@ -1,7 +1,6 @@
 import type { RouteHandler } from "../../types";
 import verifyToken from "../../brokers/verifyToken";
 import HonoRouter from "../../router";
-import { getCampaign, type GetCampaignInput } from "$core/campaigns/application/getCampaign";
 import { z } from "zod";
 import { editCampaign, type EditCampaignInput } from "$core/campaigns/application/editCampaign";
 import makeValidationBroker from "../../brokers/validationDTO";

@@ -3,6 +3,7 @@ import HonoRouter from "../../router";
 import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
 import listByCriteria from "$shared/core/application/listByCriteria";
+import { CampaignStatus } from "$core/campaigns/domain/enums";
 
 const handler: RouteHandler = async (c) => {
     const campaignRepository = c.get("repositories:campaign");
