@@ -36,7 +36,7 @@ export async function editCampaign(
     criteria.addFilter(filterbyId);
     criteria.addFilter(creatorFilter);
 
-    const campaignResult = await listByCriteria(repositories.campaignRepository, criteria);
+    const campaignResult = await listByCriteria<Campaign>(repositories.campaignRepository, criteria);
     const campaign = campaignResult.Unwrap()[0] ?? null;
 
     if (campaignResult.IsErr || !campaign) {
@@ -45,9 +45,10 @@ export async function editCampaign(
             message: "La campaña no fue encontrada"
         });
     }
-    const currentState = campaign.stateChanges[0]!.getState();
+    const currentState = campaign.stateChanges[0]?.getState() ?? null;
+
     if (
-        !POSSIBLE_EDIT_STATES.includes(currentState)
+        !currentState || (currentState && !POSSIBLE_EDIT_STATES.includes(currentState))
     ) {
         return Result.Err({
             code: "CAMPAIGN_CANNOT_BE_EDITED",

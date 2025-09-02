@@ -4,7 +4,7 @@ import type { Criteria } from "../domain/criteria/Criteria";
 async function listByCriteria<T>(
     repository: ICriteriaRepository<T>,
     criteria: Criteria
-) {
+): AsyncResult<T[]> {
     return await repository.matching(criteria);
 }
 
