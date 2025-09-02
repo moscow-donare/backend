@@ -1,18 +1,18 @@
-import { z } from "zod";
-import { createCampaign, type CreateCampaignInput } from "../../../../core/campaigns/application/createCampaign";
 import type { RouteHandler } from "../../types";
 import verifyToken from "../../brokers/verifyToken";
-import makeValidationBroker from "../../brokers/validationDTO";
 import HonoRouter from "../../router";
+import { z } from "zod";
+import { editCampaign, type EditCampaignInput } from "$core/campaigns/application/editCampaign";
+import makeValidationBroker from "../../brokers/validationDTO";
 
 const inputSchema = z.object({
-    name: z.string().min(1),
-    description: z.string().min(1),
-    category: z.number().int(),
-    goal: z.number().int().positive(),
-    endDate: z.coerce.date(),
+    name: z.string().min(1).optional(),
+    description: z.string().min(1).optional(),
+    category: z.number().int().optional(),
+    goal: z.number().int().positive().optional(),
+    endDate: z.coerce.date().optional(),
     blockchainId: z.string().min(1).optional(),
-    photo: z.string().min(1),
+    photo: z.string().min(1).optional()
 });
 
 type InputType = z.infer<typeof inputSchema>;
@@ -20,29 +20,31 @@ type InputType = z.infer<typeof inputSchema>;
 const handler: RouteHandler = async (c) => {
     const body = c.get("request:body") as InputType;
     const campaignRepository = c.get("repositories:campaign");
+    const campaignId = Number(c.req.param("id"));
     const user = c.get("user:session");
 
-    const createCampaignInput: CreateCampaignInput = {
-        ...body,
+    const input: EditCampaignInput = {
+        campaignId: campaignId,
         creator: user,
+        ...body,
     };
 
-    const createdCampaign = await createCampaign(createCampaignInput, {
+    const campaign = await editCampaign(input, {
         campaignRepository: campaignRepository,
     });
 
-    if (createdCampaign.IsErr) {
+    if (campaign.IsErr) {
         c.status(400);
         return c.json({
             success: false,
-            error: createdCampaign.Error,
+            error: campaign.Error,
         }, 400);
     }
 
     return c.json({
         success: true,
-        message: "Campaign created successfully",
-        data: createdCampaign.Unwrap(),
+        message: "Campaign edited successfully",
+        data: campaign.Unwrap(),
     });
 };
 

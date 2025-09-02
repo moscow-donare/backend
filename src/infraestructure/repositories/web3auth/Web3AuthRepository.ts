@@ -23,7 +23,6 @@ export class Web3AuthRepository implements IAuthRepository {
   }
 
   public async getUserInfo(token: string): AsyncResult<UserInputFromWeb3Auth> {
-    console.log("getUserInfo token", token);
     try {
       const { payload } = await jwtVerify(token, JWKS, {
         issuer: ISSUER_WEB3AUTH,
@@ -37,7 +36,6 @@ export class Web3AuthRepository implements IAuthRepository {
         });
       }
       const userInfo = this.mapUserInfo(payload);
-      console.log("addres armada", this.publicKeyToAddress(userInfo.address));
       return Result.Ok(this.mapUserInfo(payload));
     } catch (error) {
       console.error(error);
@@ -61,7 +59,6 @@ export class Web3AuthRepository implements IAuthRepository {
 
 
   private isValidPayload(payload: any): boolean {
-    console.log("Payload:", payload);
     return payload &&
       payload.userId && typeof payload.userId === 'string' &&
       payload.email && typeof payload.email === 'string' &&

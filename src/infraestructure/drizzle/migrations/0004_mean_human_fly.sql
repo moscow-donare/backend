@@ -1,0 +1,1 @@
+ALTER TABLE "campaigns" ADD COLUMN "blockchain_id" varchar(255);

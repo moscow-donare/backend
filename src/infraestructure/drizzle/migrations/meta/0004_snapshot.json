@@ -1,6 +1,6 @@
 {
-  "id": "dbadb3dc-e4a5-49dd-a473-98cd2859ba89",
-  "prevId": "9c62f8a2-2478-42e0-b2ac-0ff452c8c410",
+  "id": "8aa7d0e4-8b99-4de3-aec7-aedf793eee96",
+  "prevId": "b1b53e91-44c8-44c5-976e-7f5384a2e457",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -55,6 +55,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "blockchain_id": {
+          "name": "blockchain_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -130,21 +136,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "state_changes_campaign_id_campaigns_id_fk": {
-          "name": "state_changes_campaign_id_campaigns_id_fk",
-          "tableFrom": "state_changes",
-          "tableTo": "campaigns",
-          "columnsFrom": [
-            "campaign_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
