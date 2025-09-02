@@ -14,7 +14,7 @@ export class Campaign {
         public photo: string,
         public creator: User,
         public stateChanges: StateChanges[],
-        public blockchainId: string | null = null,
+        public contractAddress: string | null = null,
         public createdAt: Date,
         public updatedAt: Date
     ) { }
@@ -63,5 +63,19 @@ export class Campaign {
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );
+    }
+
+    public isApproved(): boolean {
+        return this.getCurrentStatus() === CampaignStatus.ACTIVE;
+    }
+
+    public getCurrentStatus(): CampaignStatus {
+        return this.stateChanges?.[this.stateChanges.length - 1]?.getState() ?? CampaignStatus.IN_REVIEW;
+    }
+
+    public approve(contractAddress: string): void {
+        this.contractAddress = contractAddress;
+        this.stateChanges.push(StateChanges.create(CampaignStatus.ACTIVE, "Campaign approved"));
+        this.updatedAt = new Date();
     }
 }
