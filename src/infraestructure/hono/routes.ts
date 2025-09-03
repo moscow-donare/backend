@@ -2,10 +2,10 @@ import getHelloWorldHandler from "./handlers/getHelloWorld";
 import loginWeb3AuthHandler from "./handlers/auth/loginWeb3Auth"
 import type { Route } from "./types";
 import createCampaignHandler from "./handlers/campaigns/createCampaignHandler";
-import getCampaignHandler from "./handlers/campaigns/getCampaignByIdPublicHandler";
 import getCampaignsOfUserHandler from "./handlers/campaigns/getCampaignsOfUser";
 import editCampaignHandler from "./handlers/campaigns/editCampaign";
 import getCampaignByIdPublicHandler from "./handlers/campaigns/getCampaignByIdPublicHandler";
+import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
 
 const routes: Route[] = [
   {
@@ -58,6 +58,15 @@ const routes: Route[] = [
       id: "getCampaignByIdPublic",
       url: "/campaigns/:id",
       method: "GET",
+    }
+  },
+  // approve campaign 
+  {
+    handler: approveCampaignHandler,
+    schema: {
+      id: "approveCampaign",
+      url: "/campaigns/approve",
+      method: "PATCH",
     }
   }
 ];

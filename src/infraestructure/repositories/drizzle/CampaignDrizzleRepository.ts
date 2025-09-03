@@ -29,7 +29,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 end_date: campaign.endDate,
                 photo: campaign.photo,
                 creator_id: campaign.creator.id as number,
-                blockchain_id: campaign.blockchainId ?? undefined
+                contract_address: campaign.contractAddress ?? undefined
             }).returning();
             const created = result?.[0];
 
@@ -92,7 +92,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 goal: campaign.goal,
                 end_date: campaign.endDate,
                 photo: campaign.photo,
-                blockchain_id: campaign.blockchainId ?? null,
+                contract_address: campaign.contractAddress ?? null,
                 updated_at: new Date()
             }).where(eq(campaigns.id, campaign.id)).returning();
 
@@ -140,6 +140,8 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
+    public approveCampaign()
+
     private mapToDomain(row: any, creator: User, stateChanges: any[] = []): Campaign {
         const mappedStateChanges: StateChanges[] = stateChanges.map((stateChange) => {
             return StateChanges.createWithId(
@@ -159,7 +161,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             photo: row.photo,
             creator,
             stateChanges: mappedStateChanges,
-            blockchainId: row.blockchain_id,
+            contractAddress: row.contract_address,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         });

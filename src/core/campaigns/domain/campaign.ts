@@ -45,7 +45,7 @@ export class Campaign {
         photo: string;
         creator: User;
         stateChanges: StateChanges[];
-        blockchainId: string | null;
+        contractAddress: string | null;
         createdAt?: Date | null;
         updatedAt?: Date | null;
     }): Campaign {
@@ -59,7 +59,7 @@ export class Campaign {
             props.photo,
             props.creator,
             props.stateChanges,
-            props.blockchainId,
+            props.contractAddress,
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );

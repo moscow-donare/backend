@@ -15,7 +15,6 @@ export type InputType = z.infer<typeof inputSchema>;
 const handler: RouteHandler = async (c) => {
     const campaignRepository = c.get("repositories:campaign");
     const body = c.get("request:body") as InputType;
-    const user = c.get("user:session");
 
     const result = await approveCampaign(body, {
         campaignRepository,
