@@ -19,7 +19,7 @@ export class StateChanges {
 
     static createWithId(
         id: number,
-        state: CampaignStatus,
+        state: number,
         createdAt: Date,
         reason: string
     ): StateChanges {
@@ -45,5 +45,9 @@ export class StateChanges {
 
     getReason(): string {
         return this.reason;
+    }
+
+    setId(id: number): void {
+        this.id = id;
     }
 }

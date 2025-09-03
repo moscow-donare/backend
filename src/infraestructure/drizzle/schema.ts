@@ -34,7 +34,7 @@ export const campaignsRelations = relations(campaigns, ({ many, one }) => ({
 export const state_changes = pgTable("state_changes", {
   id: serial("id").primaryKey(),
   campaign_id: integer("campaign_id").notNull(),
-  status: integer("status").notNull(),
+  state: integer("state").notNull(),
   reason: text("reason").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

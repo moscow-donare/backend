@@ -1,7 +1,7 @@
 CREATE TABLE "state_changes" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"campaign_id" integer NOT NULL,
-	"status" integer NOT NULL,
+	"state" integer NOT NULL,
 	"reason" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now()
 );

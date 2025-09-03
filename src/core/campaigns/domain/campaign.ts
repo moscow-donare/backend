@@ -69,13 +69,22 @@ export class Campaign {
         return this.getCurrentStatus() === CampaignStatus.ACTIVE;
     }
 
-    public getCurrentStatus(): CampaignStatus {
-        return this.stateChanges?.[this.stateChanges.length - 1]?.getState() ?? CampaignStatus.IN_REVIEW;
+    public getCurrentStatus(): CampaignStatus | null {
+        return this.stateChanges?.[this.stateChanges.length - 1]?.getState() ?? null;
     }
 
     public approve(contractAddress: string): void {
         this.contractAddress = contractAddress;
         this.stateChanges.push(StateChanges.create(CampaignStatus.ACTIVE, "Campaign approved"));
         this.updatedAt = new Date();
+    }
+
+    public markAsEdited(): void {
+        const states_to_mark_as_edited = [CampaignStatus.PENDING_CHANGES, CampaignStatus.ACTIVE];
+        if (states_to_mark_as_edited.includes(this.getCurrentStatus()!)) {
+            console.log("Campaign cannot be marked as edited in its current state:", this.getCurrentStatus());
+            this.stateChanges.push(StateChanges.create(CampaignStatus.PENDING_CHANGES, "Campaign edited"));
+            this.updatedAt = new Date();
+        }
     }
 }

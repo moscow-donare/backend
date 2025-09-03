@@ -45,14 +45,15 @@ export async function editCampaign(
             message: "La campaña no fue encontrada"
         });
     }
-    const currentState = campaign.stateChanges[0]?.getState() ?? null;
+    const currentState = campaign.getCurrentStatus();
+    console.log("Current State:", currentState);
 
     if (
-        !currentState || (currentState && !POSSIBLE_EDIT_STATES.includes(currentState))
+        currentState == null || (currentState && !POSSIBLE_EDIT_STATES.includes(currentState))
     ) {
         return Result.Err({
             code: "CAMPAIGN_CANNOT_BE_EDITED",
-            message: "La campaña solo puede ser editada si está pendiente a cambios o aceptada"
+            message: "La campaña solo puede ser editada si está en revisión, pendiente a cambios o aceptada"
         });
     }
 
@@ -69,6 +70,8 @@ export async function editCampaign(
             (campaign as EditableFields)[key as keyof EditableFields] = value as never;
         }
     });
+
+    campaign.markAsEdited();
 
     const updatedResult = await repositories.campaignRepository.edit(campaign);
     if (updatedResult.IsErr || !updatedResult.Unwrap()) {
