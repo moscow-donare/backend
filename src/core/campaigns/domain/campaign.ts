@@ -74,7 +74,10 @@ export class Campaign {
     }
 
     public approve(contractAddress: string): void {
-        this.contractAddress = contractAddress;
+        if (!this.contractAddress) {
+            // Only set the contract address if it hasn't been set before
+            this.contractAddress = contractAddress;
+        }
         this.stateChanges.push(StateChanges.create(CampaignStatus.ACTIVE, "Campaign approved"));
         this.updatedAt = new Date();
     }
@@ -82,8 +85,7 @@ export class Campaign {
     public markAsEdited(): void {
         const states_to_mark_as_edited = [CampaignStatus.PENDING_CHANGES, CampaignStatus.ACTIVE];
         if (states_to_mark_as_edited.includes(this.getCurrentStatus()!)) {
-            console.log("Campaign cannot be marked as edited in its current state:", this.getCurrentStatus());
-            this.stateChanges.push(StateChanges.create(CampaignStatus.PENDING_CHANGES, "Campaign edited"));
+            this.stateChanges.push(StateChanges.create(CampaignStatus.IN_REVIEW, "Campaign edited"));
             this.updatedAt = new Date();
         }
     }

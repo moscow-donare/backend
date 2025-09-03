@@ -95,7 +95,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 updated_at: new Date(),
             }).where(eq(campaigns.id, campaign.id)).returning();
 
-            campaign.stateChanges.forEach(async (stateChange) => {
+            await Promise.all(campaign.stateChanges.map(async (stateChange) => {
                 if (!stateChange.getId()) {
                     const stateChangeResult = await db.insert(state_changes).values({
                         campaign_id: campaign.id!,
@@ -104,7 +104,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                     }).returning();
                     stateChange.setId(stateChangeResult[0]!.id);
                 }
-            });
+            }));
 
             const updated = result?.[0];
             if (!updated) {
@@ -114,7 +114,6 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            // Fetch the full creator user from the database
             const creatorRow = await db.select().from(users).where(eq(users.id, updated.creator_id)).limit(1);
             if (!creatorRow || creatorRow.length === 0) {
                 return Result.Err({
@@ -133,7 +132,6 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    // TO DO: VALIDAR POR QUÉ CUANDO EDITAS LA CAMPAÑA EL ÚLTIMO CAMBIO DE ESTADO VA CON EL ID NULL
     private mapToDomain(row: any, creator: User, stateChanges: StateChanges[] | any[] = []): Campaign {
         const mappedStateChanges: StateChanges[] = stateChanges.map((stateChange) => {
             if (stateChange instanceof StateChanges) {
@@ -147,7 +145,6 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             )
         });
 
-        console.log("Mapping state changes:", mappedStateChanges);
         return CampaignDomain.createWithId({
             id: row.id,
             name: row.name,

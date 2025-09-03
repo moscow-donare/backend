@@ -46,7 +46,6 @@ export async function editCampaign(
         });
     }
     const currentState = campaign.getCurrentStatus();
-    console.log("Current State:", currentState);
 
     if (
         currentState == null || (currentState && !POSSIBLE_EDIT_STATES.includes(currentState))
