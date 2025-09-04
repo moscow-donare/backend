@@ -17,7 +17,7 @@ export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.que
 
             // Usamos el query builder de Drizzle que soporta `with`
             result = await db.query[this.drizzleQueryEntity].findMany({
-                where: and(...filters),
+                where: filters ? and(...filters) : undefined,
                 with: relations ?? undefined,
                 orderBy: (row: any) => row[orderBy],
                 limit: criteria.getLimit() != -1 ? criteria.getLimit() : undefined,
@@ -36,9 +36,13 @@ export abstract class DrizzleCriteriaRepository<T, Q extends keyof typeof db.que
         }
     }
 
-    private getFilters(criteria: Criteria): SQL[] {
+    private getFilters(criteria: Criteria): SQL[] | null {
+        const filtersCriteria = criteria.getFilters();
+        if (filtersCriteria.length == 0) {
+            return null;
+        }
         const filters: SQL[] = [];
-        criteria.getFilters().forEach(filter => {
+        filtersCriteria.forEach(filter => {
             filters.push(this.translateFilter(filter));
         });
         return filters;

@@ -6,6 +6,7 @@ import getCampaignsOfUserHandler from "./handlers/campaigns/getCampaignsOfUser";
 import editCampaignHandler from "./handlers/campaigns/editCampaign";
 import getCampaignByIdPublicHandler from "./handlers/campaigns/getCampaignByIdPublicHandler";
 import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
+import getCampaignsInReviewHandler from "./handlers/campaigns/getCampigsInReview";
 
 const routes: Route[] = [
   {
@@ -67,6 +68,15 @@ const routes: Route[] = [
       id: "approveCampaign",
       url: "/campaigns/approve",
       method: "PATCH",
+    }
+  },
+  // get campaigns in review  
+  {
+    handler: getCampaignsInReviewHandler,
+    schema: {
+      id: "getCampaignsInReview",
+      url: "/backoffice/campaigns/in-review",
+      method: "GET",
     }
   }
 ];
