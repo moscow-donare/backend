@@ -66,7 +66,7 @@ const routes: Route[] = [
     handler: approveCampaignHandler,
     schema: {
       id: "approveCampaign",
-      url: "/campaigns/approve",
+      url: "/backoffice/campaigns/approve",
       method: "PATCH",
     }
   },
