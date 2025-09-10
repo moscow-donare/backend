@@ -65,18 +65,19 @@ export class Web3AuthRepository implements IAuthRepository {
       payload.name && typeof payload.name === 'string' &&
       Array.isArray(payload.wallets) &&
       payload.wallets.some((wallet: any) =>
-        wallet.type === "web3auth_threshold_key" &&
+        wallet.type === "web3auth_app_key" &&
         wallet.curve === "secp256k1" &&
         typeof wallet.public_key === 'string'
       );
   }
 
   private mapUserInfo(payload: any): UserInputFromWeb3Auth {
+    const address = payload.wallets.find((wallet: any) => wallet.type === "web3auth_app_key" && wallet.curve === "secp256k1").public_key;
     return {
       userId: payload.userId,
       email: payload.email,
       name: payload.name,
-      address: payload.wallets.find((wallet: any) => wallet.type === "web3auth_threshold_key" && wallet.curve === "secp256k1").public_key,
+      address: this.publicKeyToAddress(address),
     }
   }
 }

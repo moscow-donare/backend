@@ -2,10 +2,11 @@ import getHelloWorldHandler from "./handlers/getHelloWorld";
 import loginWeb3AuthHandler from "./handlers/auth/loginWeb3Auth"
 import type { Route } from "./types";
 import createCampaignHandler from "./handlers/campaigns/createCampaignHandler";
-import getCampaignHandler from "./handlers/campaigns/getCampaignByIdPublicHandler";
 import getCampaignsOfUserHandler from "./handlers/campaigns/getCampaignsOfUser";
 import editCampaignHandler from "./handlers/campaigns/editCampaign";
 import getCampaignByIdPublicHandler from "./handlers/campaigns/getCampaignByIdPublicHandler";
+import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
+import getCampaignsInReviewHandler from "./handlers/campaigns/getCampigsInReview";
 
 const routes: Route[] = [
   {
@@ -57,6 +58,24 @@ const routes: Route[] = [
     schema: {
       id: "getCampaignByIdPublic",
       url: "/campaigns/:id",
+      method: "GET",
+    }
+  },
+  // approve campaign 
+  {
+    handler: approveCampaignHandler,
+    schema: {
+      id: "approveCampaign",
+      url: "/backoffice/campaigns/approve",
+      method: "PATCH",
+    }
+  },
+  // get campaigns in review  
+  {
+    handler: getCampaignsInReviewHandler,
+    schema: {
+      id: "getCampaignsInReview",
+      url: "/backoffice/campaigns/in-review",
       method: "GET",
     }
   }

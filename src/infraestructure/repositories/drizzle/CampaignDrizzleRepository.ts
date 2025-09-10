@@ -4,10 +4,9 @@ import { User } from "src/core/users/domain/user";
 import { Campaign as CampaignDomain } from "src/core/campaigns/domain/campaign";
 import { db } from "src/infraestructure/drizzle/db";
 import { campaigns, state_changes, users } from "src/infraestructure/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { DrizzleCriteriaRepository } from "$shared/infraestructure/adapters/DrizzleCriteriaRepository";
 import { StateChanges } from "$core/campaigns/domain/stateChanges";
-import { CampaignStatus } from "$core/campaigns/domain/enums";
 import type { UserDB } from "$core/users/domain/types";
 
 const CODE_DB_CAMPAIGN_CREATION_FAILED = "DB_ERROR::CAMPAIGN_CREATION_FAILED";
@@ -29,7 +28,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 end_date: campaign.endDate,
                 photo: campaign.photo,
                 creator_id: campaign.creator.id as number,
-                blockchain_id: campaign.blockchainId ?? undefined
+                contract_address: campaign.contractAddress ?? undefined
             }).returning();
             const created = result?.[0];
 
@@ -43,7 +42,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             const statusChanges = await Promise.all(campaign.stateChanges.map(async (stateChange) => {
                 const result = await db.insert(state_changes).values({
                     campaign_id: created.id,
-                    status: stateChange.getState(),
+                    state: stateChange.getState(),
                     reason: stateChange.getReason()
                 }).returning();
                 return result[0];
@@ -92,26 +91,20 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 goal: campaign.goal,
                 end_date: campaign.endDate,
                 photo: campaign.photo,
-                blockchain_id: campaign.blockchainId ?? null,
-                updated_at: new Date()
+                contract_address: campaign.contractAddress ?? null,
+                updated_at: new Date(),
             }).where(eq(campaigns.id, campaign.id)).returning();
 
-            const stateChanges = campaign.stateChanges;
-            const lastStateChange = stateChanges[0]?.getState() ?? null;
-
-            if (lastStateChange && (lastStateChange == CampaignStatus.PENDING_CHANGES || lastStateChange == CampaignStatus.ACTIVE)) {
-                const inReviewChangeState = await db.insert(state_changes).values({
-                    campaign_id: campaign.id!,
-                    status: CampaignStatus.IN_REVIEW,
-                    reason: "Edición de campaña"
-                }).returning();
-                stateChanges.unshift(StateChanges.createWithId(
-                    inReviewChangeState[0]!.id,
-                    inReviewChangeState[0]!.status,
-                    inReviewChangeState[0]!.created_at ? new Date(inReviewChangeState[0]!.created_at) : new Date(),
-                    inReviewChangeState[0]!.reason
-                ));
-            }
+            await Promise.all(campaign.stateChanges.map(async (stateChange) => {
+                if (!stateChange.getId()) {
+                    const stateChangeResult = await db.insert(state_changes).values({
+                        campaign_id: campaign.id!,
+                        state: stateChange.getState(),
+                        reason: stateChange.getReason()
+                    }).returning();
+                    stateChange.setId(stateChangeResult[0]!.id);
+                }
+            }));
 
             const updated = result?.[0];
             if (!updated) {
@@ -121,7 +114,6 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
 
-            // Fetch the full creator user from the database
             const creatorRow = await db.select().from(users).where(eq(users.id, updated.creator_id)).limit(1);
             if (!creatorRow || creatorRow.length === 0) {
                 return Result.Err({
@@ -130,7 +122,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                 });
             }
             const creator = this.mapUserToDomain(creatorRow[0]! as UserDB);
-            return Result.Ok(this.mapToDomain(updated, creator, stateChanges));
+            return Result.Ok(this.mapToDomain(updated, creator, campaign.stateChanges));
         } catch (error) {
             return Result.Err({
                 code: CODE_DB_CAMPAIGN_EDIT_FAILED,
@@ -140,15 +132,19 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
-    private mapToDomain(row: any, creator: User, stateChanges: any[] = []): Campaign {
+    private mapToDomain(row: any, creator: User, stateChanges: StateChanges[] | any[] = []): Campaign {
         const mappedStateChanges: StateChanges[] = stateChanges.map((stateChange) => {
+            if (stateChange instanceof StateChanges) {
+                return stateChange;
+            }
             return StateChanges.createWithId(
                 stateChange.id,
-                stateChange.status,
+                stateChange.state,
                 new Date(stateChange.created_at ?? stateChange.createdAt ?? new Date()),
                 stateChange.reason
             )
         });
+
         return CampaignDomain.createWithId({
             id: row.id,
             name: row.name,
@@ -159,7 +155,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
             photo: row.photo,
             creator,
             stateChanges: mappedStateChanges,
-            blockchainId: row.blockchain_id,
+            contractAddress: row.contract_address,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         });
@@ -187,7 +183,7 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
     getRelations() {
         return {
             state_changes: {
-                orderBy: (sc: { created_at: any; }, { desc }: any) => [desc(sc.created_at)],
+                orderBy: (sc: { created_at: any; }, { desc }: any) => [asc(sc.created_at)],
             },
             creator: {
                 ref: "users",

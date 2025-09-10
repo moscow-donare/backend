@@ -14,7 +14,7 @@ export class Campaign {
         public photo: string,
         public creator: User,
         public stateChanges: StateChanges[],
-        public blockchainId: string | null = null,
+        public contractAddress: string | null = null,
         public createdAt: Date,
         public updatedAt: Date
     ) { }
@@ -45,7 +45,7 @@ export class Campaign {
         photo: string;
         creator: User;
         stateChanges: StateChanges[];
-        blockchainId: string | null;
+        contractAddress: string | null;
         createdAt?: Date | null;
         updatedAt?: Date | null;
     }): Campaign {
@@ -59,9 +59,34 @@ export class Campaign {
             props.photo,
             props.creator,
             props.stateChanges,
-            props.blockchainId,
+            props.contractAddress,
             props.createdAt ?? new Date(),
             props.updatedAt ?? new Date()
         );
+    }
+
+    public isApproved(): boolean {
+        return this.getCurrentStatus() === CampaignStatus.ACTIVE;
+    }
+
+    public getCurrentStatus(): CampaignStatus | null {
+        return this.stateChanges?.[this.stateChanges.length - 1]?.getState() ?? null;
+    }
+
+    public approve(contractAddress: string): void {
+        if (!this.contractAddress) {
+            // Only set the contract address if it hasn't been set before
+            this.contractAddress = contractAddress;
+        }
+        this.stateChanges.push(StateChanges.create(CampaignStatus.ACTIVE, "Campaign approved"));
+        this.updatedAt = new Date();
+    }
+
+    public markAsEdited(): void {
+        const states_to_mark_as_edited = [CampaignStatus.PENDING_CHANGES, CampaignStatus.ACTIVE];
+        if (states_to_mark_as_edited.includes(this.getCurrentStatus()!)) {
+            this.stateChanges.push(StateChanges.create(CampaignStatus.IN_REVIEW, "Campaign edited"));
+            this.updatedAt = new Date();
+        }
     }
 }
