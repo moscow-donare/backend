@@ -4,7 +4,6 @@ import type { RouteHandler } from "../../types";
 import verifyToken from "../../brokers/verifyToken";
 import makeValidationBroker from "../../brokers/validationDTO";
 import HonoRouter from "../../router";
-import requireAdmin from "../../brokers/requireAdmin";
 
 const inputSchema = z.object({
     name: z.string().min(1),
