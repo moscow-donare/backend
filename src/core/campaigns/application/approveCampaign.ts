@@ -1,4 +1,3 @@
-import { campaigns } from "src/infraestructure/drizzle/schema";
 import type { ContainerCampaignRepository } from "../domain/ports/ICampaignRepository";
 import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
