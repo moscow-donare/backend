@@ -22,10 +22,9 @@ function isAdminEmail(email: string): boolean {
     return ADMIN_EMAILS.has(email.trim().toLowerCase());
 }
 
-export function validateAdminRole(user: User): void {
+export function isAdmin(user: User): boolean {
     if (!user?.email || !isAdminEmail(user.email)) {
-        const err: any = new Error("User is not authorized as admin.");
-        err.code = "UserNotAdmin";
-        throw err;
+        return false;
     }
+    return true;
 }
