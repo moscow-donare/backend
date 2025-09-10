@@ -11,7 +11,6 @@ const handler: RouteHandler = async (c) => {
 
     const criteria: Criteria = new Criteria();
 
-    console.log("desde el handlerrrr------------->", criteria.getFilters());
     const campaigns = await listByCriteria<Campaign>(campaignRepository, criteria);
 
     if (campaigns.IsErr) {
