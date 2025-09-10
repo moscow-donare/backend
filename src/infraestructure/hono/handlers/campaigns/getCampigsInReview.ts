@@ -8,7 +8,6 @@ import type { Campaign } from "$core/campaigns/domain/campaign";
 
 const handler: RouteHandler = async (c) => {
     const campaignRepository = c.get("repositories:campaign");
-    console.log("Handler 'getCampaignsInReview' invoked");
 
     const criteria: Criteria = new Criteria();
 
