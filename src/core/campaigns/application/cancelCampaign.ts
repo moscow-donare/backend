@@ -20,7 +20,7 @@ export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, r
         });
     }
 
-    if (campaignToCancel.creator !== user || user.isAdmin()) {
+    if (campaignToCancel.creator !== user && !user.isAdmin()) {
         return Result.Err({
             code: "UNAUTHORIZED",
             details: "You are not authorized to cancel this campaign",
