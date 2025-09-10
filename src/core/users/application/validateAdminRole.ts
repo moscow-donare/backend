@@ -1,3 +1,4 @@
+
 import type { User } from "$core/users/domain/user";
 import { z } from "zod";
 
@@ -17,7 +18,7 @@ const ADMIN_EMAILS: Set<string> = new Set(
 );
 
 
-export function isAdminEmail(email: string): boolean {
+function isAdminEmail(email: string): boolean {
     return ADMIN_EMAILS.has(email.trim().toLowerCase());
 }
 
