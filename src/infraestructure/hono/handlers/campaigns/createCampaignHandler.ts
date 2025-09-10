@@ -47,4 +47,4 @@ const handler: RouteHandler = async (c) => {
     });
 };
 
-export default HonoRouter.resolve(handler, [makeValidationBroker(inputSchema), verifyToken, requireAdmin]);
+export default HonoRouter.resolve(handler, [makeValidationBroker(inputSchema), verifyToken]);
