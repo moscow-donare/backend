@@ -1,5 +1,3 @@
-import { isAdmin } from "../application/userIsAdmin";
-
 export class User {
     private constructor(
         public readonly id: number | null,
@@ -25,9 +23,5 @@ export class User {
         createdAt: Date | null;
     }): User {
         return new User(props.id, props.fullName, props.email, props.address, props.createdAt);
-    }
-
-    isAdmin() {
-        return isAdmin(this);
     }
 }

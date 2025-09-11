@@ -6,6 +6,7 @@ import type { Campaign } from "../domain/campaign";
 import type { InputType } from "src/infraestructure/hono/handlers/campaigns/cancelCampaign";
 import type { User } from "$core/users/domain/user";
 import { CampaignStatus } from "../domain/enums";
+import { isAdmin } from "$core/users/application/userIsAdmin";
 
 export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, repositories: ContainerCampaignRepository) => {
     const criteria: Criteria = new Criteria();
@@ -27,8 +28,12 @@ export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, r
         });
     }
 
-
-    if (campaignToCancel.creator !== user && !user.isAdmin()) {
+    console.log(campaignToCancel.creator)
+    console.log(user)
+    console.log('son iguales?, ', campaignToCancel.creator.id === user.id)
+    console.log('es admin', isAdmin(user))
+    if (campaignToCancel.creator.id !== user.id && !isAdmin(user)) {
+        console.log('entro al if')
         return Result.Err({
             code: "UNAUTHORIZED",
             details: "You are not authorized to cancel this campaign",

@@ -32,7 +32,7 @@ const handler: RouteHandler = async (c) => {
 
     return c.json({
         success: true,
-        message: "Campaign approved successfully",
+        message: "Campaign canceled successfully",
         data: result.Unwrap(),
     });
 };

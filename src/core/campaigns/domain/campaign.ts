@@ -70,7 +70,7 @@ export class Campaign {
     }
 
     public isCanceled(): boolean {
-        return this.getCurrentStatus() === CampaignStatus.CANCELLED;
+        return this.getCurrentStatus() === CampaignStatus.CANCELED;
     }
 
     public getCurrentStatus(): CampaignStatus | null {
@@ -90,7 +90,7 @@ export class Campaign {
         if (!this.contractAddress) {
             this.contractAddress = contractAddress;
         }
-        this.stateChanges.push(StateChanges.create(CampaignStatus.CANCELLED, reason));
+        this.stateChanges.push(StateChanges.create(CampaignStatus.CANCELED, reason));
         this.updatedAt = new Date();
     }
 
