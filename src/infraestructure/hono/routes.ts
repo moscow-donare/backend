@@ -7,6 +7,7 @@ import editCampaignHandler from "./handlers/campaigns/editCampaign";
 import getCampaignByIdPublicHandler from "./handlers/campaigns/getCampaignByIdPublicHandler";
 import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
 import getCampaignsInReviewHandler from "./handlers/campaigns/getCampigsInReview";
+import cancelCampaignHandler from "./handlers/campaigns/cancelCampaign";
 
 const routes: Route[] = [
   {
@@ -59,6 +60,14 @@ const routes: Route[] = [
       id: "getCampaignByIdPublic",
       url: "/campaigns/:id",
       method: "GET",
+    }
+  },
+  {
+    handler: cancelCampaignHandler,
+    schema: {
+      id: "cancelCampaign",
+      url: "/campaigns/cancel",
+      method: "PATCH",
     }
   },
   // approve campaign 
