@@ -24,7 +24,7 @@ const handler: RouteHandler = async (c) => {
     }
 
     const campaignUnwrap = campaign.Unwrap()[0] ?? null;
-    if (!campaignUnwrap || campaignUnwrap.stateChanges[0]?.getState() != CampaignStatus.ACTIVE) {
+    if (!campaignUnwrap || campaignUnwrap.getCurrentStatus() != CampaignStatus.ACTIVE) {
         c.status(404);
         return c.json({
             success: false,
