@@ -28,12 +28,7 @@ export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, r
         });
     }
 
-    console.log(campaignToCancel.creator)
-    console.log(user)
-    console.log('son iguales?, ', campaignToCancel.creator.id === user.id)
-    console.log('es admin', isAdmin(user))
     if (campaignToCancel.creator.id !== user.id && !isAdmin(user)) {
-        console.log('entro al if')
         return Result.Err({
             code: "UNAUTHORIZED",
             details: "You are not authorized to cancel this campaign",
