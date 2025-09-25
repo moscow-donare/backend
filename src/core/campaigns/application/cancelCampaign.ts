@@ -42,7 +42,8 @@ export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, r
         });
     }
 
-    if (campaignToCancel.getCurrentStatus() !== CampaignStatus.IN_REVIEW && campaignToCancel.getCurrentStatus() !== CampaignStatus.ACTIVE) {
+    const currentStatus = campaignToCancel.getCurrentStatus();
+    if (currentStatus !== CampaignStatus.IN_REVIEW && currentStatus !== CampaignStatus.ACTIVE) {
         return Result.Err({
             code: "INVALID_CAMPAIGN_STATUS",
             details: "Only campaigns in Pending Review or Active status can be canceled",
