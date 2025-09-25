@@ -8,6 +8,7 @@ import getCampaignByIdPublicHandler from "./handlers/campaigns/getCampaignByIdPu
 import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
 import getCampaignsInReviewHandler from "./handlers/campaigns/getCampigsInReview";
 import cancelCampaignHandler from "./handlers/campaigns/cancelCampaign";
+import getCampaignsActiveHandler from "./handlers/campaigns/getCampaignsActive";
 
 const routes: Route[] = [
   {
@@ -58,7 +59,7 @@ const routes: Route[] = [
     handler: getCampaignByIdPublicHandler,
     schema: {
       id: "getCampaignByIdPublic",
-      url: "/campaigns/:id",
+      url: "/campaigns/id/:id",
       method: "GET",
     }
   },
@@ -85,6 +86,14 @@ const routes: Route[] = [
     schema: {
       id: "getCampaignsInReview",
       url: "/backoffice/campaigns/in-review",
+      method: "GET",
+    }
+  },
+  {
+    handler: getCampaignsActiveHandler,
+    schema: {
+      id: "getCampaignsActive",
+      url: "/campaigns/active",
       method: "GET",
     }
   }
