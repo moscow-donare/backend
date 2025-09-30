@@ -86,10 +86,7 @@ export class Campaign {
         this.updatedAt = new Date();
     }
 
-    public cancel(contractAddress: string, reason: string): void {
-        if (!this.contractAddress) {
-            this.contractAddress = contractAddress;
-        }
+    public cancel(reason: string): void {
         this.stateChanges.push(StateChanges.create(CampaignStatus.CANCELED, reason));
         this.updatedAt = new Date();
     }

@@ -49,7 +49,7 @@ export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, r
         });
     }
 
-    campaignToCancel.cancel(cancelCampaignDTO.contractAddress, cancelCampaignDTO.reason || "Campaign canceled");
+    campaignToCancel.cancel(cancelCampaignDTO.reason || "Campaign canceled");
 
     const updatedCampaign = await repositories.campaignRepository.edit(campaignToCancel);
 

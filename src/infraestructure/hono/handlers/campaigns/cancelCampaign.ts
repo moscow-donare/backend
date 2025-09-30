@@ -7,7 +7,6 @@ import { cancelCampaign } from "$core/campaigns/application/cancelCampaign";
 
 const inputSchema = z.object({
     id: z.number().int().positive(),
-    contractAddress: z.string().min(42).startsWith("0x"),
     reason: z.string().max(255).optional(),
 })
 
