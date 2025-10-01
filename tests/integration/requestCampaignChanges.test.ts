@@ -16,6 +16,12 @@ describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', asy
         email: "testuser@donare.com",
         address: "0xabc123abc123abc123abc123abc123abc123abc1"
     };
+    const userNotAdmin = {
+        id: 2,
+        name: "Other User",
+        email: "otheruser@donare.com",
+        address: "0xdef456def456def456def456def456def456def4"
+    };
     let mockUsers: UserDB[] = [];
     beforeEach(async () => {
         honoService = createTestHonoService({
@@ -31,6 +37,7 @@ describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', asy
 
         mockUsers = await db.insert(users).values([
             { full_name: mockUser.name, email: mockUser.email, address: mockUser.address },
+            { full_name: userNotAdmin.name, email: userNotAdmin.email, address: userNotAdmin.address }
         ]).returning().execute();
     });
 
@@ -102,5 +109,46 @@ describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', asy
         expect(responseBody).toHaveProperty("error");
         expect(responseBody.error).toHaveProperty("code", "INVALID_CAMPAIGN_STATUS");
         expect(responseBody.error).toHaveProperty("details", "Only campaigns in In Review status can have changes requested");
+    });
+
+    it('devuelve 403 al intentar solicitar cambios con un usuario que no es admin', async () => {
+        const campaignId = 1;
+        await db.insert(campaigns).values({
+            id: campaignId,
+            name: "Campaña en revisión",
+            description: "Descripción de la campaña en revisión",
+            category: 1,
+            goal: 5000,
+            end_date: new Date(Date.now() + 86400000),
+            photo: "ipfs://photoCID",
+            creator_id: mockUsers[0]!.id,
+        });
+        await db.insert(state_changes).values({
+            campaign_id: campaignId,
+            reason: "Creación de campaña",
+            state: 0, // IN_REVIEW
+            created_at: new Date(),
+        });
+
+        // Cambiar el usuario autenticado al que no es admin
+        honoService = createTestHonoService({
+            web3auth: new MockWeb3AuthRepository(userNotAdmin),
+            user: new UserDrizzleRepository(),
+            campaign: new CampaignDrizzleRepository(),
+        });
+
+        const response = await honoService.honoApp.request(`/campaigns/request-changes`, {
+            method: "PATCH",
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token2' },
+            body: JSON.stringify({
+                id: campaignId,
+                reason: "Intento de solicitar cambios por usuario no admin."
+            }),
+        });
+
+        expect(response.status).toBe(403);
+        const responseBody: any = await response.json();
+        expect(responseBody).toHaveProperty("error");
+        expect(responseBody.error).toHaveProperty("code", "USER_NOT_ADMIN");
     });
 });
