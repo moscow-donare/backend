@@ -8,6 +8,7 @@
     "start": "bun src/index.ts",
     "migrate": "bun drizzle-kit migrate",
     "migrate:local": "DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@localhost:5432/donare bun drizzle-kit migrate",
+    "migrate:local:test": "DATABASE_URL=postgresql://donare:donare@localhost:5433/donare_test bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@localhost:5433/donare_test bun drizzle-kit migrate",
     "migrate:docker": "DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit generate && DATABASE_URL=postgresql://donare:donare@postgres:5432/donare bun drizzle-kit migrate",
     "migrate:docker:test": "DATABASE_URL=postgresql://postgres:postgres@postgrestest:5432/donare_test bun drizzle-kit generate && DATABASE_URL=postgresql://postgres:postgres@postgrestest:5432/donare_test bun drizzle-kit migrate",
     "test": "vitest"
@@ -30,7 +31,7 @@
     "ethers": "^6.14.4",
     "hono": "^4.7.10",
     "jose": "^6.0.11",
-    "pg": "^8.16.0",
+    "pg": "^8.16.3",
     "zod": "^3.25.63"
   }
 }
