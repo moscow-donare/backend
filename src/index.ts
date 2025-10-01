@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "./shared/global.ts";
 import "./infraestructure/drizzle/db.ts";
 import { honoService } from './bootstrap'
