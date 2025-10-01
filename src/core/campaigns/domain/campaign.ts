@@ -69,6 +69,10 @@ export class Campaign {
         return this.getCurrentStatus() === CampaignStatus.ACTIVE;
     }
 
+    public isCanceled(): boolean {
+        return this.getCurrentStatus() === CampaignStatus.CANCELED;
+    }
+
     public getCurrentStatus(): CampaignStatus | null {
         return this.stateChanges?.[this.stateChanges.length - 1]?.getState() ?? null;
     }
@@ -79,6 +83,11 @@ export class Campaign {
             this.contractAddress = contractAddress;
         }
         this.stateChanges.push(StateChanges.create(CampaignStatus.ACTIVE, "Campaign approved"));
+        this.updatedAt = new Date();
+    }
+
+    public cancel(reason: string): void {
+        this.stateChanges.push(StateChanges.create(CampaignStatus.CANCELED, reason));
         this.updatedAt = new Date();
     }
 

@@ -1,40 +1,12 @@
 {
-  "version": "7",
+  "version": "1",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
       "version": "7",
-      "when": 1750430765373,
-      "tag": "0000_complex_leopardon",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1754353255219,
-      "tag": "0001_dark_jasper_sitwell",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1755981594566,
-      "tag": "0002_even_rattler",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1755997232328,
-      "tag": "0003_mixed_the_hand",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1756080338808,
-      "tag": "0004_mean_human_fly",
+      "when": 1759277835493,
+      "tag": "0000_calm_overlord",
       "breakpoints": true
     }
   ]
