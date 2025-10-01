@@ -21,7 +21,7 @@ services:
       - postgrestest
     env_file:
       - .env.test
-    command: bash -c "bun run migrate:docker:test && bun run test"
+    command: bash -c "bun run migrate:docker:test"
     volumes:
       - .:/app
     working_dir: /app

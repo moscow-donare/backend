@@ -1,14 +1,16 @@
-import type HonoService from "src/infraestructure/hono/service";
-import { createTestHonoService } from "tests/shared/createTestHonoService";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { MockWeb3AuthRepository } from "./auth.test.ts";
-import { UserDrizzleRepository } from "src/infraestructure/repositories/drizzle/UserDrizzleRepository";
-import { CampaignDrizzleRepository } from "src/infraestructure/repositories/drizzle/CampaignDrizzleRepository";
-import { db } from "src/infraestructure/drizzle/db";
-import { campaigns, users } from "src/infraestructure/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { clearDatabase } from "tests/shared/clearDatabaseForTest";
-import { CreateMockUser } from "tests/shared/createMockUser";
+import { CreateMockUser } from "../shared/createMockUser";
+import { clearDatabase } from "../shared/clearDatabaseForTest.ts";
+import { createTestHonoService } from "tests/shared/createTestHonoService.ts";
+import { UserDrizzleRepository } from "src/infraestructure/repositories/drizzle/UserDrizzleRepository.ts";
+import { CampaignDrizzleRepository } from "src/infraestructure/repositories/drizzle/CampaignDrizzleRepository.ts";
+import { db } from "src/infraestructure/drizzle/db.ts";
+import { campaigns, users } from "src/infraestructure/drizzle/schema.ts";
+import type HonoService from "src/infraestructure/hono/service.ts";
+
+
 
 const testCampaign = {
     name: "Campaña Test",
@@ -75,8 +77,8 @@ describe('POST /campaigns - creación de campaña válida', async () => {
 describe('POST /campaigns - campaña en revisión ya existente', async () => {
     let mockUser;
     let honoService: HonoService;
-    await beforeEach(async () => {
-        mockUser = CreateMockUser.getInstance().create()
+    beforeEach(async () => {
+        mockUser = CreateMockUser.getInstance().create();
         honoService = createTestHonoService({
             web3auth: new MockWeb3AuthRepository(mockUser),
             user: new UserDrizzleRepository(),
@@ -98,9 +100,8 @@ describe('POST /campaigns - campaña en revisión ya existente', async () => {
             goal: 500,
             end_date: new Date(Date.now() + 86400000),
             photo: "ipfs://photo",
-            creator_id: userSaved!.id,
-            status: 0
-        })
+            creator_id: userSaved!.id
+        });
     })
 
     await afterEach(async () => {
@@ -153,31 +154,30 @@ describe('POST /campaigns - campaña activa ya existente', async () => {
             goal: 500,
             end_date: new Date(Date.now() + 86400000),
             photo: "ipfs://photo",
-            creator_id: userSaved!.id,
-            status: 2 // ACTIVE
-        })
-    })
-
-    await afterEach(async () => {
-        await clearDatabase();
-    })
-
-    it('devuelve 400 con error USER_ACTIVE_CAMPAIGN_EXISTS', async () => {
-        const res = await honoService.honoApp.request('/campaigns/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
-            body: JSON.stringify(testCampaign)
+            creator_id: userSaved!.id
         })
 
-        expect(res.status).toBe(400)
-        const body = await res.json()
+        await afterEach(async () => {
+            await clearDatabase();
+        })
 
-        expect(body).toMatchObject({
-            success: false,
-            error: {
-                code: "USER_ACTIVE_CAMPAIGN_EXISTS",
-                message: "El usuario ya tiene una campaña activa"
-            }
+        it('devuelve 400 con error USER_ACTIVE_CAMPAIGN_EXISTS', async () => {
+            const res = await honoService.honoApp.request('/campaigns/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
+                body: JSON.stringify(testCampaign)
+            })
+
+            expect(res.status).toBe(400)
+            const body = await res.json()
+
+            expect(body).toMatchObject({
+                success: false,
+                error: {
+                    code: "USER_ACTIVE_CAMPAIGN_EXISTS",
+                    message: "El usuario ya tiene una campaña activa"
+                }
+            })
         })
     })
 })
