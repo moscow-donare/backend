@@ -8,7 +8,7 @@ import { CampaignDrizzleRepository } from "src/infraestructure/repositories/driz
 import { campaigns, state_changes, users } from "src/infraestructure/drizzle/schema";
 import { db } from "src/infraestructure/drizzle/db";
 
-describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', async () => {
+describe('PATCH /backoffice/campaigns/request-changes - solicitar cambios en campaña', async () => {
     let honoService: HonoService;
     const mockUser = {
         id: 1,
@@ -59,7 +59,7 @@ describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', asy
             state: 0, // IN_REVIEW
             created_at: new Date(),
         });
-        const response = await honoService.honoApp.request(`/campaigns/request-changes`, {
+        const response = await honoService.honoApp.request(`/backoffice/campaigns/request-changes`, {
             method: "PATCH",
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
             body: JSON.stringify({
@@ -96,7 +96,7 @@ describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', asy
             state: 2, // ACTIVE
             created_at: new Date(),
         });
-        const response = await honoService.honoApp.request(`/campaigns/request-changes`, {
+        const response = await honoService.honoApp.request(`/backoffice/campaigns/request-changes`, {
             method: "PATCH",
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token' },
             body: JSON.stringify({
@@ -137,7 +137,7 @@ describe('PATCH /campaigns/request-changes - solicitar cambios en campaña', asy
             campaign: new CampaignDrizzleRepository(),
         });
 
-        const response = await honoService.honoApp.request(`/campaigns/request-changes`, {
+        const response = await honoService.honoApp.request(`/backoffice/campaigns/request-changes`, {
             method: "PATCH",
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer mock-token2' },
             body: JSON.stringify({

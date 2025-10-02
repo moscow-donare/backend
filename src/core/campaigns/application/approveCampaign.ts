@@ -26,6 +26,13 @@ export const approveCampaign = async (approveCampaignDTO: InputType, repositorie
         });
     }
 
+    if (!campaignToApprove.isPendingReview()) {
+        return Result.Err({
+            code: "INVALID_CAMPAIGN_STATUS",
+            details: "Only campaigns in In Review status can be approved",
+        });
+    }
+
     campaignToApprove.approve(approveCampaignDTO.contractAddress);
 
     const updatedCampaign = await repositories.campaignRepository.edit(campaignToApprove);

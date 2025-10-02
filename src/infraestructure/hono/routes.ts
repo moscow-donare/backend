@@ -76,7 +76,7 @@ const routes: Route[] = [
     handler: requestCampaignChangesHandler,
     schema: {
       id: "requestCampaignChanges",
-      url: "/campaigns/request-changes",
+      url: "/backoffice/campaigns/request-changes",
       method: "PATCH",
     }
   },
