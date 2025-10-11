@@ -15,9 +15,9 @@ const handler: RouteHandler = async (c) => {
     const body = c.get("request:body") as InputType;
     const web3auth = c.get("repositories:web3auth");
     const userRepository = c.get("repositories:user");
+    const userDataRepository = c.get("repositories:userData");
 
     const user = await web3auth.getUserInfo(body.idToken)
-
     if (user.IsErr) {
         return c.json({
             success: false,
@@ -48,9 +48,11 @@ const handler: RouteHandler = async (c) => {
         fullName: userInfo.name,
         email: userInfo.email,
         address: userInfo.address,
+        provider: userInfo.provider,
     }
     const createdUser = await createUser(createUserInput, {
         userRepository: userRepository,
+        userDataRepository: userDataRepository,
     });
 
     if (createdUser.IsErr) {

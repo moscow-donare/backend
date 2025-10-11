@@ -1,8 +1,7 @@
-import { jwtVerify, createRemoteJWKSet, importSPKI } from "jose";
+import { jwtVerify, createRemoteJWKSet } from "jose";
 import type { IAuthRepository } from "./ports/IAuthRepository";
 import type { UserInputFromWeb3Auth } from "$core/users/domain/types";
 import { ethers } from "ethers";
-
 
 const JWKS_URL = process.env.JWKS_URL!; // URL del JWKS de Web3Auth
 const CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID ?? ''; // el de tu proyecto
@@ -36,7 +35,7 @@ export class Web3AuthRepository implements IAuthRepository {
         });
       }
       const userInfo = this.mapUserInfo(payload);
-      return Result.Ok(this.mapUserInfo(payload));
+      return Result.Ok(userInfo);
     } catch (error) {
       console.error(error);
       return Result.Err({
@@ -71,12 +70,29 @@ export class Web3AuthRepository implements IAuthRepository {
       );
   }
 
+  private extractProviderFromGroupedAuthConnectionId(groupedAuthConnectionId: string): string {
+    // Formato esperado: "web3auth-{provider}-{network}"
+    // Ejemplo: "web3auth-google-sapphire-devnet" -> "google"
+    const parts = groupedAuthConnectionId.split('-');
+    if (parts.length >= 2 && parts[0] === 'web3auth' && parts[1]) {
+      return parts[1];
+    }
+    return "unknown";
+  }
+
   private mapUserInfo(payload: any): UserInputFromWeb3Auth {
     const address = payload.wallets.find((wallet: any) => wallet.type === "web3auth_app_key" && wallet.curve === "secp256k1").public_key;
+    
+    // Extraer el provider del groupedAuthConnectionId
+    const provider = payload.groupedAuthConnectionId 
+      ? this.extractProviderFromGroupedAuthConnectionId(payload.groupedAuthConnectionId)
+      : "google";
+    
     return {
       userId: payload.userId,
       email: payload.email,
       name: payload.name,
+      provider: provider,
       address: this.publicKeyToAddress(address),
     }
   }

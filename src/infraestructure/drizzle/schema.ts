@@ -46,4 +46,31 @@ export const stateChangesRelations = relations(state_changes, ({ one }) => ({
   }),
 }));
 
-export const schema = { users, campaigns, state_changes, stateChangesRelations, campaignsRelations };
+export const userData = pgTable("user_data", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").notNull().references(() => users.id),
+  birthday: timestamp("birthday").defaultNow(),
+  country: varchar("country", { length: 255 }).default(null as unknown as string),
+  state: varchar("state", { length: 255 }).default(null as unknown as string),
+  city: varchar("city", { length: 255 }).default(null as unknown as string),
+  gender: varchar("gender", { length: 10 }).default(null as unknown as string),
+  provider: varchar("provider", { length: 50 }).default(null as unknown as string),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const userDataRelations = relations(userData, ({ one }) => ({
+  user: one(users, {
+    fields: [userData.user_id],
+    references: [users.id],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ one }) => ({
+  userData: one(userData, {
+    fields: [users.id],
+    references: [userData.user_id],
+  }),
+}));
+
+export const schema = { users, campaigns, state_changes, userData, stateChangesRelations, campaignsRelations, userDataRelations, usersRelations };
