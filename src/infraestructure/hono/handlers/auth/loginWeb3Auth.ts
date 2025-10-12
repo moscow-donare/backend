@@ -49,6 +49,7 @@ const handler: RouteHandler = async (c) => {
         email: userInfo.email,
         address: userInfo.address,
         provider: userInfo.provider,
+        photo: userInfo.photo,
     }
     const createdUser = await createUser(createUserInput, {
         userRepository: userRepository,

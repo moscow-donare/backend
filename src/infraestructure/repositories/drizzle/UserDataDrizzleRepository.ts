@@ -24,6 +24,7 @@ export class UserDataDrizzleRepository implements IUserDataRepository {
                         city: userDataEntity.city,
                         gender: userDataEntity.gender,
                         provider: userDataEntity.provider,
+                        photo: userDataEntity.photo,
                         updated_at: new Date(),
                     })
                     .where(eq(userData.id, userDataEntity.id))
@@ -50,6 +51,7 @@ export class UserDataDrizzleRepository implements IUserDataRepository {
                 city: userDataEntity.city,
                 gender: userDataEntity.gender,
                 provider: userDataEntity.provider,
+                photo: userDataEntity.photo,
             }).returning();
             const created = result?.[0];
 
@@ -104,6 +106,7 @@ export class UserDataDrizzleRepository implements IUserDataRepository {
             city: userDataDB.city,
             gender: userDataDB.gender,
             provider: userDataDB.provider,
+            photo: userDataDB.photo,
             createdAt: userDataDB.created_at ?? new Date(),
             updatedAt: userDataDB.updated_at ?? new Date(),
         });

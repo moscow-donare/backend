@@ -12,6 +12,7 @@ export type UserInputFromWeb3Auth = {
     name: string;
     address: string;
     provider: string;
+    photo: string | null;
 }
 
 export type UserDataDB = {
@@ -23,6 +24,7 @@ export type UserDataDB = {
     city: string | null;
     gender: string | null;
     provider: string | null;
+    photo: string | null;
     created_at: Date | null;
     updated_at: Date | null;
 }

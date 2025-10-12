@@ -9,6 +9,7 @@ export type UpdateUserDataInput = {
     state?: string | null;
     city?: string | null;
     gender?: string | null;
+    photo?: string | null;
 };
 
 export async function updateUserData(
@@ -44,6 +45,7 @@ export async function updateUserData(
         city: input.city !== undefined ? input.city : existingUserData.city,
         provider: existingUserData.provider,
         gender: input.gender !== undefined ? input.gender : existingUserData.gender,
+        photo: input.photo !== undefined ? input.photo : existingUserData.photo,
         createdAt: existingUserData.createdAt,
         updatedAt: new Date(),
     });

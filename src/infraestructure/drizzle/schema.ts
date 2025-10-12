@@ -55,6 +55,7 @@ export const userData = pgTable("user_data", {
   city: varchar("city", { length: 255 }).default(null as unknown as string),
   gender: varchar("gender", { length: 10 }).default(null as unknown as string),
   provider: varchar("provider", { length: 50 }).default(null as unknown as string),
+  photo: varchar("photo", { length: 500 }).default(null as unknown as string),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });

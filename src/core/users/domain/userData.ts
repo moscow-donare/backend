@@ -8,6 +8,7 @@ export class UserData {
         public city: string | null,
         public gender: string | null,   
         public provider: string | null,
+        public photo: string | null,
         public createdAt: Date,
         public updatedAt: Date
     ) { }
@@ -20,10 +21,11 @@ export class UserData {
         city: string | null;
         gender: string | null;
         provider: string | null;
+        photo: string | null;
         createdAt: Date;
         updatedAt: Date;
     }): UserData {
-        return new UserData(null, props.userId, props.birthday, props.country, props.state, props.city, props.gender, props.provider, props.createdAt, props.updatedAt);
+        return new UserData(null, props.userId, props.birthday, props.country, props.state, props.city, props.gender, props.provider, props.photo, props.createdAt, props.updatedAt);
     }
 
     static createWithId(props: {
@@ -35,9 +37,10 @@ export class UserData {
         city: string | null;
         gender: string | null;
         provider: string | null;
+        photo: string | null;
         createdAt: Date;
         updatedAt: Date;
     }): UserData {
-        return new UserData(props.id, props.userId, props.birthday, props.country, props.state, props.city, props.gender, props.provider, props.createdAt, props.updatedAt);
+        return new UserData(props.id, props.userId, props.birthday, props.country, props.state, props.city, props.gender, props.provider, props.photo, props.createdAt, props.updatedAt);
     }
 }

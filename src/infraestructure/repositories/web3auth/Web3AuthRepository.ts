@@ -88,12 +88,16 @@ export class Web3AuthRepository implements IAuthRepository {
       ? this.extractProviderFromGroupedAuthConnectionId(payload.groupedAuthConnectionId)
       : "google";
     
+    // Extraer la foto de perfil si existe
+    const photo = payload.profileImage || null;
+    
     return {
       userId: payload.userId,
       email: payload.email,
       name: payload.name,
       provider: provider,
       address: this.publicKeyToAddress(address),
+      photo: photo,
     }
   }
 }

@@ -8,6 +8,7 @@ export type CreateUserInput = {
     email: string;
     address: string;
     provider: string;
+    photo: string | null;
 };
 
 type CreateUserRepositories = ContainerUserRepository & {
@@ -60,6 +61,7 @@ export async function createUser(input: CreateUserInput, repositories: CreateUse
         city: null,
         gender: null,
         provider: input.provider,
+        photo: input.photo,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
