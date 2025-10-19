@@ -27,8 +27,9 @@ class HonoService {
         process.env.NODE_ENV === "production"
           ? {
             origin: [
-              // == Stable
               "http://localhost:3000",
+              // == UAT Fly.io
+              "https://donare-frontend.fly.dev"
             ],
             allowHeaders: [
               "Upgrade-Insecure-Requests",
