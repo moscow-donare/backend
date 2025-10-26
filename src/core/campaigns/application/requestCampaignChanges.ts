@@ -3,39 +3,32 @@ import { Criteria } from "$shared/core/domain/criteria/Criteria";
 import { Filter } from "$shared/core/domain/criteria/Filter";
 import listByCriteria from "$shared/core/application/listByCriteria";
 import type { Campaign } from "../domain/campaign";
-import type { InputType } from "src/infraestructure/hono/handlers/campaigns/approveCampaign";
+import type { InputType } from "src/infraestructure/hono/handlers/campaigns/requestCampaignChanges";
 
-export const approveCampaign = async (approveCampaignDTO: InputType, repositories: ContainerCampaignRepository) => {
+export const requestCampaignChanges = async (requestCampaignChangesDTO: InputType, repositories: ContainerCampaignRepository) => {
     const criteria: Criteria = new Criteria();
-    criteria.addFilter(new Filter("id", approveCampaignDTO.id));
+    criteria.addFilter(new Filter("id", requestCampaignChangesDTO.id));
 
     const campaign = await listByCriteria<Campaign>(repositories.campaignRepository, criteria);
-    const campaignToApprove = campaign.Unwrap()[0] ?? null;
+    const campaignToRequestChanges = campaign.Unwrap()[0] ?? null;
 
-    if (campaign.IsErr || !campaignToApprove) {
+    if (campaign.IsErr || !campaignToRequestChanges) {
         return Result.Err({
             code: "CAMPAIGN_NOT_FOUND",
             details: campaign.Error || "No campaign found with the given criteria",
         });
     }
 
-    if (campaignToApprove.isApproved()) {
-        return Result.Err({
-            code: "CAMPAIGN_ALREADY_APPROVED",
-            details: "The campaign is already approved",
-        });
-    }
-
-    if (!campaignToApprove.isPendingReview()) {
+    if (!campaignToRequestChanges.isPendingReview()) {
         return Result.Err({
             code: "INVALID_CAMPAIGN_STATUS",
-            details: "Only campaigns in In Review status can be approved",
+            details: "Only campaigns in In Review status can have changes requested",
         });
     }
 
-    campaignToApprove.approve(approveCampaignDTO.contractAddress);
+    campaignToRequestChanges.requestChanges(requestCampaignChangesDTO.reason);
 
-    const updatedCampaign = await repositories.campaignRepository.edit(campaignToApprove);
+    const updatedCampaign = await repositories.campaignRepository.edit(campaignToRequestChanges);
 
     if (updatedCampaign.IsErr) {
         return Result.Err({

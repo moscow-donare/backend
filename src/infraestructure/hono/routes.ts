@@ -9,6 +9,7 @@ import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
 import getCampaignsInReviewHandler from "./handlers/campaigns/getCampigsInReview";
 import cancelCampaignHandler from "./handlers/campaigns/cancelCampaign";
 import getCampaignsActiveHandler from "./handlers/campaigns/getCampaignsActive";
+import requestCampaignChangesHandler from "./handlers/campaigns/requestCampaignChanges";
 
 const routes: Route[] = [
   {
@@ -68,6 +69,14 @@ const routes: Route[] = [
     schema: {
       id: "cancelCampaign",
       url: "/campaigns/cancel",
+      method: "PATCH",
+    }
+  },
+  {
+    handler: requestCampaignChangesHandler,
+    schema: {
+      id: "requestCampaignChanges",
+      url: "/backoffice/campaigns/request-changes",
       method: "PATCH",
     }
   },
