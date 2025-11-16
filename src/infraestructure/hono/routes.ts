@@ -9,6 +9,8 @@ import approveCampaignHandler from "./handlers/campaigns/approveCampaign";
 import getCampaignsInReviewHandler from "./handlers/campaigns/getCampigsInReview";
 import cancelCampaignHandler from "./handlers/campaigns/cancelCampaign";
 import getCampaignsActiveHandler from "./handlers/campaigns/getCampaignsActive";
+import getUserDataHandler from "./handlers/users/getUserDataHandler";
+import updateUserDataHandler from "./handlers/users/updateUserDataHandler";
 import requestCampaignChangesHandler from "./handlers/campaigns/requestCampaignChanges";
 
 const routes: Route[] = [
@@ -104,6 +106,23 @@ const routes: Route[] = [
       id: "getCampaignsActive",
       url: "/campaigns/active",
       method: "GET",
+    }
+  },
+  // User Data endpoints
+  {
+    handler: getUserDataHandler,
+    schema: {
+      id: "getUserData",
+      url: "/users/data",
+      method: "GET",
+    }
+  },
+  {
+    handler: updateUserDataHandler,
+    schema: {
+      id: "updateUserData",
+      url: "/users/data",
+      method: "PATCH",
     }
   }
 ];

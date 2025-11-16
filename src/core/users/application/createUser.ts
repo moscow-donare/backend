@@ -1,13 +1,21 @@
 import { User } from "../domain/user";
 import type { ContainerUserRepository } from "../domain/ports/IUserRepository";
+import type { IUserDataRepository } from "../domain/ports/IUserDataRepository";
+import { UserData } from "../domain/userData";
 
 export type CreateUserInput = {
     fullName: string;
     email: string;
     address: string;
+    provider: string;
+    photo: string | null;
 };
 
-export async function createUser(input: CreateUserInput, repositories: ContainerUserRepository): AsyncResult<User> {
+type CreateUserRepositories = ContainerUserRepository & {
+    userDataRepository: IUserDataRepository;
+};
+
+export async function createUser(input: CreateUserInput, repositories: CreateUserRepositories): AsyncResult<User> {
 
     const user = User.create(input);
 
@@ -44,6 +52,28 @@ export async function createUser(input: CreateUserInput, repositories: Container
         });
     }
 
+    // Create UserData record with default values
+    const userData = UserData.create({
+        userId: created.id!,
+        birthday: null,
+        country: null,
+        state: null,
+        city: null,
+        gender: null,
+        provider: input.provider,
+        photo: input.photo,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    });
+
+    const userDataResult = await repositories.userDataRepository.save(userData);
+    if (userDataResult.IsErr) {
+        return Result.Err({
+            code: userDataResult.Error.code,
+            message: userDataResult.Error.message,
+            details: userDataResult.Error.details,
+        });
+    }
 
     return Result.Ok({
         id: created.id,

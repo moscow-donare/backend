@@ -2,6 +2,7 @@ import { type Context as HContext, Hono as HHono } from "hono";
 import type { ResultError } from "../../shared/Result";
 import type { IAuthRepository } from "../repositories/web3auth/ports/IAuthRepository";
 import type { IUserRepository } from "$core/users/domain/ports/IUserRepository";
+import type { IUserDataRepository } from "$core/users/domain/ports/IUserDataRepository";
 import type { User } from "$core/users/domain/user";
 import type { ICampaignRepository } from "$core/campaigns/domain/ports/ICampaignRepository";
 
@@ -16,6 +17,7 @@ export type HonoServiceDependencies = {
   repositories: {
     web3auth: IAuthRepository;
     user: IUserRepository;
+    userData: IUserDataRepository;
     campaign: ICampaignRepository;
   };
 };
@@ -24,6 +26,7 @@ export interface ContextVariables {
   // Repositories
   "repositories:web3auth": HonoServiceDependencies['repositories']["web3auth"];
   "repositories:user": HonoServiceDependencies['repositories']["user"];
+  "repositories:userData": HonoServiceDependencies['repositories']["userData"];
   "repositories:campaign": HonoServiceDependencies['repositories']["campaign"];
 
   // Entities

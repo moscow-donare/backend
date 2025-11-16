@@ -49,6 +49,7 @@ class HonoService {
     this.app.use((c, next) => {
       c.set("repositories:web3auth", deps.repositories.web3auth);
       c.set("repositories:user", deps.repositories.user);
+      c.set("repositories:userData", deps.repositories.userData);
       c.set("repositories:campaign", deps.repositories.campaign);
       return next();
     });
