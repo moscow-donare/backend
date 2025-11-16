@@ -13,18 +13,12 @@ export const cancelCampaign = async (cancelCampaignDTO: InputType, user: User, r
     criteria.addFilter(new Filter("id", cancelCampaignDTO.id));
 
     const campaign = await listByCriteria<Campaign>(repositories.campaignRepository, criteria);
+    const campaignToCancel = campaign.Unwrap()[0] ?? null;
 
-    if (campaign.IsErr) {
+    if (campaign.IsErr || !campaignToCancel) {
         return Result.Err({
             code: "CAMPAIGN_NOT_FOUND",
             details: campaign.Error || "No campaign found with the given criteria",
-        });
-    }
-    const campaignToCancel = campaign.Unwrap()[0] ?? null;
-    if (!campaignToCancel) {
-        return Result.Err({
-            code: "CAMPAIGN_NOT_FOUND",
-            details: "No campaign found with the given criteria",
         });
     }
 

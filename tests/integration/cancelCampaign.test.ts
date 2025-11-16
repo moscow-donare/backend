@@ -34,7 +34,7 @@ describe('PATCH /campaigns/cancel - cancelar campaña', async () => {
         await db.delete(state_changes).execute();
         await db.delete(campaigns).execute();
         await db.delete(users).execute();
-        console.log("DB cleaned----------------___>");
+
         mockUsers = await db.insert(users).values([
             { full_name: mockUser.name, email: mockUser.email, address: mockUser.address },
             { full_name: otherUser.name, email: otherUser.email, address: otherUser.address }

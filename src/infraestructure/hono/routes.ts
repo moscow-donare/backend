@@ -11,6 +11,7 @@ import cancelCampaignHandler from "./handlers/campaigns/cancelCampaign";
 import getCampaignsActiveHandler from "./handlers/campaigns/getCampaignsActive";
 import getUserDataHandler from "./handlers/users/getUserDataHandler";
 import updateUserDataHandler from "./handlers/users/updateUserDataHandler";
+import requestCampaignChangesHandler from "./handlers/campaigns/requestCampaignChanges";
 
 const routes: Route[] = [
   {
@@ -70,6 +71,14 @@ const routes: Route[] = [
     schema: {
       id: "cancelCampaign",
       url: "/campaigns/cancel",
+      method: "PATCH",
+    }
+  },
+  {
+    handler: requestCampaignChangesHandler,
+    schema: {
+      id: "requestCampaignChanges",
+      url: "/backoffice/campaigns/request-changes",
       method: "PATCH",
     }
   },

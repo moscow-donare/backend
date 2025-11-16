@@ -73,6 +73,10 @@ export class Campaign {
         return this.getCurrentStatus() === CampaignStatus.CANCELED;
     }
 
+    public isPendingReview(): boolean {
+        return this.getCurrentStatus() === CampaignStatus.IN_REVIEW;
+    }
+
     public getCurrentStatus(): CampaignStatus | null {
         return this.stateChanges?.[this.stateChanges.length - 1]?.getState() ?? null;
     }
@@ -88,6 +92,11 @@ export class Campaign {
 
     public cancel(reason: string): void {
         this.stateChanges.push(StateChanges.create(CampaignStatus.CANCELED, reason));
+        this.updatedAt = new Date();
+    }
+
+    public requestChanges(reason: string): void {
+        this.stateChanges.push(StateChanges.create(CampaignStatus.PENDING_CHANGES, reason));
         this.updatedAt = new Date();
     }
 
