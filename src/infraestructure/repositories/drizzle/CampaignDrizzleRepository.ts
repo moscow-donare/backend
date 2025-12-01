@@ -132,6 +132,34 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
         }
     }
 
+    async findById(id: number): AsyncResult<Campaign> {
+        try {
+            const result = await db.select().from(campaigns).where(eq(campaigns.id, id)).limit(1);
+            if (!result || result.length === 0) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_FIND_FAILED,
+                    message: "No se pudo encontrar la campaña",
+                });
+            }
+            const creatorRow = await db.select().from(users).where(eq(users.id, result[0]!.creator_id)).limit(1);
+            if (!creatorRow || creatorRow.length === 0) {
+                return Result.Err({
+                    code: CODE_DB_CAMPAIGN_FIND_FAILED,
+                    message: "No se pudo encontrar el usuario creador de la campaña",
+                });
+            }
+            const creator = this.mapUserToDomain(creatorRow[0]! as UserDB);
+            return Result.Ok(this.mapToDomain(result[0]!, creator));
+        } catch (error) {
+            console.error("Error finding campaign by id:", error);
+            return Result.Err({
+                code: CODE_DB_CAMPAIGN_FIND_FAILED,
+                message: "Error al buscar la campaña",
+                details: error,
+            });
+        }
+    }
+
     private mapToDomain(row: any, creator: User, stateChanges: StateChanges[] | any[] = []): Campaign {
         const mappedStateChanges: StateChanges[] = stateChanges.map((stateChange) => {
             if (stateChange instanceof StateChanges) {

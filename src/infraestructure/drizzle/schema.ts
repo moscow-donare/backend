@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, serial, varchar, timestamp, text, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, timestamp, text, integer, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -67,11 +67,33 @@ export const userDataRelations = relations(userData, ({ one }) => ({
   }),
 }));
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   userData: one(userData, {
     fields: [users.id],
     references: [userData.user_id],
   }),
+  donations: many(donations),
 }));
 
-export const schema = { users, campaigns, state_changes, userData, stateChangesRelations, campaignsRelations, userDataRelations, usersRelations };
+export const donations = pgTable("donations", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").notNull().references(() => users.id),
+  campaign_id: integer("campaign_id").notNull().references(() => campaigns.id),
+  amount: integer("amount").notNull(),
+  tx_hash: varchar("tx_hash", { length: 255 }).notNull(),
+  is_anonymous: boolean("is_anonymous").default(false),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const donationsRelations = relations(donations, ({ one }) => ({
+  user: one(users, {
+    fields: [donations.user_id],
+    references: [users.id],
+  }),
+  campaign: one(campaigns, {
+    fields: [donations.campaign_id],
+    references: [campaigns.id],
+  }),
+}));
+
+export const schema = { users, campaigns, state_changes, userData, donations, stateChangesRelations, campaignsRelations, userDataRelations, usersRelations, donationsRelations };
