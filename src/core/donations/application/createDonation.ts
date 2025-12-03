@@ -15,8 +15,6 @@ export type CreateDonationInput = {
 
 //TODO: Refactorizar esta bosta
 export async function createDonation(input: CreateDonationInput, repositories: ContainerDonationRepository & ContainerCampaignRepository): AsyncResult<Donation> {
-
-
     // Buscamos la campaña
     const campaignResult = await repositories.campaignRepository.findById(input.campaignId);
     if (campaignResult.IsErr) {
@@ -28,18 +26,10 @@ export async function createDonation(input: CreateDonationInput, repositories: C
     }
     const campaign = campaignResult.Unwrap();
 
-    if (campaign.getCurrentStatus() !== CampaignStatus.ACTIVE) {
+    if (campaign.getCurrentStatus() !== CampaignStatus.ACTIVE || !campaign.contractAddress) {
         return Result.Err({
             code: "VALIDATION_ERROR::CAMPAIGN_NOT_ACTIVE",
             message: "La campaña no puede recibir donaciones",
-        });
-    }
-
-    // Validamos que la campaña tenga un contrato
-    if (!campaign.contractAddress) {
-        return Result.Err({
-            code: "VALIDATION_ERROR::INVALID_CAMPAIGN",
-            message: "La campaña no puede ser donada",
         });
     }
 
