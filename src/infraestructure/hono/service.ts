@@ -51,6 +51,7 @@ class HonoService {
       c.set("repositories:user", deps.repositories.user);
       c.set("repositories:userData", deps.repositories.userData);
       c.set("repositories:campaign", deps.repositories.campaign);
+      c.set("repositories:donation", deps.repositories.donation);
       return next();
     });
 

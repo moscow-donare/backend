@@ -7,7 +7,7 @@ import { CampaignStatus } from "$core/campaigns/domain/enums";
 export class FetchCampaignStateTx implements BlockchainTx<CampaignStatus> {
     constructor(
         private readonly contractAddress: string,
-        private readonly provider: JsonRpcProvider = new JsonRpcProvider()
+        private readonly provider: JsonRpcProvider = new JsonRpcProvider(process.env.RPC_URL)
     ) { }
 
     async value(): Promise<CampaignStatus> {

@@ -148,8 +148,10 @@ export class CampaignDrizzleRepository extends DrizzleCriteriaRepository<Campaig
                     message: "No se pudo encontrar el usuario creador de la campaña",
                 });
             }
+            const stateChangesRows = await db.select().from(state_changes).where(eq(state_changes.campaign_id, id)).orderBy(asc(state_changes.created_at));
+
             const creator = this.mapUserToDomain(creatorRow[0]! as UserDB);
-            return Result.Ok(this.mapToDomain(result[0]!, creator));
+            return Result.Ok(this.mapToDomain(result[0]!, creator, stateChangesRows));
         } catch (error) {
             console.error("Error finding campaign by id:", error);
             return Result.Err({
