@@ -35,7 +35,7 @@ const createDonationHandler: RouteHandler = async (c: Context) => {
         return c.json({ error: result.Error.message }, 400);
     }
 
-    return c.json(result.Unwrap(), 201);
+    return c.json({ success: true, data: result.Unwrap(), message: "Donation created successfully" }, 201);
 };
 
 export default HonoRouter.resolve(createDonationHandler, [verifyToken, makeValidationBroker(inputSchema)]);
