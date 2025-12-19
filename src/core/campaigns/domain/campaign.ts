@@ -107,4 +107,9 @@ export class Campaign {
             this.updatedAt = new Date();
         }
     }
+
+    public markAsCompleted(): void {
+        this.stateChanges.push(StateChanges.create(CampaignStatus.COMPLETED, "Campaign completed"));
+        this.updatedAt = new Date();
+    }
 }

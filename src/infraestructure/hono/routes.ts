@@ -12,6 +12,7 @@ import getCampaignsActiveHandler from "./handlers/campaigns/getCampaignsActive";
 import getUserDataHandler from "./handlers/users/getUserDataHandler";
 import updateUserDataHandler from "./handlers/users/updateUserDataHandler";
 import requestCampaignChangesHandler from "./handlers/campaigns/requestCampaignChanges";
+import createDonationHandler from "./handlers/donations/createDonationHandler";
 
 const routes: Route[] = [
   {
@@ -123,6 +124,15 @@ const routes: Route[] = [
       id: "updateUserData",
       url: "/users/data",
       method: "PATCH",
+    }
+  },
+  // Donation endpoints
+  {
+    handler: createDonationHandler,
+    schema: {
+      id: "createDonation",
+      url: "/donations",
+      method: "POST",
     }
   }
 ];

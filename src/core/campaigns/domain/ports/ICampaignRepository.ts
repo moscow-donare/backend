@@ -6,6 +6,7 @@ export interface ICampaignRepository extends ICriteriaRepository<Campaign> {
     save(campaign: Campaign): AsyncResult<Campaign>;
     findByUser(user: User): AsyncResult<Campaign[]>;
     edit(campaign: Campaign): AsyncResult<Campaign>;
+    findById(id: number): AsyncResult<Campaign>;
 }
 
 export type ContainerCampaignRepository = {

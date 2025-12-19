@@ -5,6 +5,7 @@ import type { IUserRepository } from "$core/users/domain/ports/IUserRepository";
 import type { IUserDataRepository } from "$core/users/domain/ports/IUserDataRepository";
 import type { User } from "$core/users/domain/user";
 import type { ICampaignRepository } from "$core/campaigns/domain/ports/ICampaignRepository";
+import type { IDonationRepository } from "$core/donations/domain/ports/IDonationRepository";
 
 export type Hono = HHono<{
   Variables: ContextVariables;
@@ -19,6 +20,7 @@ export type HonoServiceDependencies = {
     user: IUserRepository;
     userData: IUserDataRepository;
     campaign: ICampaignRepository;
+    donation: IDonationRepository;
   };
 };
 
@@ -28,6 +30,7 @@ export interface ContextVariables {
   "repositories:user": HonoServiceDependencies['repositories']["user"];
   "repositories:userData": HonoServiceDependencies['repositories']["userData"];
   "repositories:campaign": HonoServiceDependencies['repositories']["campaign"];
+  "repositories:donation": HonoServiceDependencies['repositories']["donation"];
 
   // Entities
   "user:session": User;
