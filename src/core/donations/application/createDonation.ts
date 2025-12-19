@@ -46,7 +46,7 @@ export async function createDonation(input: CreateDonationInput, repositories: C
 
 
     // Validamos si es que la campaña alcanzo su meta que deberia tener el estado on chain en completed
-    if (stateOnChain == CampaignStatus.COMPLETED) {
+    if (stateOnChain === CampaignStatus.COMPLETED) {
         campaign.markAsCompleted();
         await repositories.campaignRepository.edit(campaign);
     }
