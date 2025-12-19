@@ -32,7 +32,8 @@ const createDonationHandler: RouteHandler = async (c: Context) => {
     });
 
     if (result.IsErr) {
-        return c.json({ error: result.Error.message }, 400);
+        c.status(400);
+        return c.json({ success: false, error: result.Error }, 400);
     }
 
     return c.json({ success: true, data: result.Unwrap(), message: "Donation created successfully" }, 201);
