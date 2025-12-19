@@ -10,6 +10,6 @@ export class ValidOf {
         const provider = new JsonRpcProvider(process.env.RPC_URL);
 
         const receipt = await provider.getTransactionReceipt(this.txHash);
-        return receipt != null && receipt.status === 1 && receipt.to === this.contractAddress;
+        return receipt != null && receipt.status === 1 && receipt.to?.toLowerCase() === this.contractAddress.toLowerCase();
     }
 }
